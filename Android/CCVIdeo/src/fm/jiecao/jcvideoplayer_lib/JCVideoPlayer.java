@@ -589,7 +589,7 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
     public void onVideoSizeChanged() {
         Log.i(TAG, "onVideoSizeChanged " + " [" + this.hashCode() + "] ");
         Point p = JCMediaManager.instance().getVideoSize();
-        if (p != null) {
+        if (p != null && JCMediaManager.textureView != null) {
         		JCMediaManager.textureView.setVideoSize(p);
         }
     }
