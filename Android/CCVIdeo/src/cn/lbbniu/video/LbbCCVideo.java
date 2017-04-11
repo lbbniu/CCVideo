@@ -1,5 +1,8 @@
 package cn.lbbniu.video;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -14,7 +17,7 @@ import com.uzmap.pkg.uzcore.uzmodule.UZModuleContext;
 import fm.jiecao.jcvideoplayer_lib.JCMediaManager;
 import fm.jiecao.jcvideoplayer_lib.JCUserAction;
 import fm.jiecao.jcvideoplayer_lib.JCUserActionStandard;
-import fm.jiecao.jcvideoplayer_lib.JCVideoPlayer;
+import fm.jiecao.jcvideoplayer_lib.JCUtils;
 import fm.jiecao.jcvideoplayer_lib.JCVideoPlayerStandard;
 public class LbbCCVideo extends UZModule {
 	private UZModuleContext mJsCallback;
@@ -22,11 +25,12 @@ public class LbbCCVideo extends UZModule {
 	
 	public LbbCCVideo(UZWebView webView) {
 		super(webView);
-		JCVideoPlayer.FULLSCREEN_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+		JCVideoPlayerStandard.FULLSCREEN_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+		JCVideoPlayerStandard.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 		JCMediaManager.USERID = super.getFeatureValue("lbbVideo", "UserId");
 		JCMediaManager.API_KEY = super.getFeatureValue("lbbVideo", "apiKey");
 		JCMediaManager.MCONTEXT = getContext();
-		JCVideoPlayer.setJcUserAction(new MyUserActionStandard());
+		JCVideoPlayerStandard.setJcUserAction(new MyUserActionStandard());
 	}
 	
 	JCVideoPlayerStandard mJcVideoPlayerStandard;
@@ -39,6 +43,8 @@ public class LbbCCVideo extends UZModule {
 		mJsCallback = moduleContext;
 		if(null == mJcVideoPlayerStandard){			
 			mJcVideoPlayerStandard = new JCVideoPlayerStandard(getContext());
+		}else{
+			mJcVideoPlayerStandard.release();
 		}
 		if(null == mJcVideoPlayerStandard.getParent()){
 			int x = moduleContext.optInt("x");
@@ -66,9 +72,29 @@ public class LbbCCVideo extends UZModule {
 		JCMediaManager.USERID = moduleContext.optString("UserId");
 		JCMediaManager.API_KEY = moduleContext.optString("apiKey");
 		mJcVideoPlayerStandard.setUp(mJsCallback.optString("videoId") , JCVideoPlayerStandard.SCREEN_LAYOUT_NORMAL, mJsCallback.optString("title"));
-		Picasso.with(mContext)
-         .load("http://img4.jiecaojingxuan.com/2016/11/23/00b026e7-b830-4994-bc87-38f4033806a6.jpg@!640_360")
-         .into(mJcVideoPlayerStandard.thumbImageView);
+		
+		//视频缩略图
+		String thumbImageUrl = moduleContext.optString("thumbImageUrl");	
+		if(thumbImageUrl!=null){
+			Picasso.with(mContext)
+	         .load(thumbImageUrl)
+	         .into(mJcVideoPlayerStandard.thumbImageView);
+		}
+		//到指定位置播放
+		int position = moduleContext.optInt("position", 0);
+		if(position >= 0){
+			mJcVideoPlayerStandard.seekToInAdvance = position;
+		}
+		//是否自动播放
+		if(moduleContext.optBoolean("autoPlay", false)){
+			mJcVideoPlayerStandard.startButton.performClick();
+		}
+		
+		//是否全屏播放
+		if(moduleContext.optBoolean("fullscreen", false)){
+			mJcVideoPlayerStandard.onEvent(JCUserAction.ON_ENTER_FULLSCREEN);
+			mJcVideoPlayerStandard.startWindowFullscreen();
+		}
 	}
 	
 	/**
@@ -78,12 +104,19 @@ public class LbbCCVideo extends UZModule {
 	@UzJavascriptMethod
 	public void jsmethod_close(final UZModuleContext moduleContext){
 		if(mJcVideoPlayerStandard != null){
-			mJcVideoPlayerStandard.releaseAllVideos();
+			mJcVideoPlayerStandard.release();
 			removeViewFromCurWindow(mJcVideoPlayerStandard);		
 			mJcVideoPlayerStandard = null;
 			mJsCallback = null;	
 		}
 	}
+	@UzJavascriptMethod
+	public void jsmethod_back(final UZModuleContext moduleContext){
+		if(mJcVideoPlayerStandard != null){
+			JCVideoPlayerStandard.backPress();
+		}
+	}
+	
 	
 	/**
 	 * 开始播放
@@ -91,7 +124,24 @@ public class LbbCCVideo extends UZModule {
 	 */
 	@UzJavascriptMethod
 	public void jsmethod_start(final UZModuleContext moduleContext){	
-		
+		if(mJcVideoPlayerStandard != null){
+			int  currentState = mJcVideoPlayerStandard.currentState;
+			if (currentState == JCVideoPlayerStandard.CURRENT_STATE_NORMAL || currentState == JCVideoPlayerStandard.CURRENT_STATE_ERROR) {
+                if (!mJcVideoPlayerStandard.url.startsWith("file") && !JCUtils.isWifiConnected(getContext()) && !JCVideoPlayerStandard.WIFI_TIP_DIALOG_SHOWED) {
+                		mJcVideoPlayerStandard.showWifiDialog();
+                    return;
+                }
+                mJcVideoPlayerStandard.prepareMediaPlayer();
+                mJcVideoPlayerStandard.onEvent(currentState != JCVideoPlayerStandard.CURRENT_STATE_ERROR ? JCUserAction.ON_CLICK_START_ICON : JCUserAction.ON_CLICK_START_ERROR);
+            } else if (currentState == JCVideoPlayerStandard.CURRENT_STATE_PAUSE) {
+            		mJcVideoPlayerStandard.onEvent(JCUserAction.ON_CLICK_RESUME);
+                JCMediaManager.instance().mediaPlayer.start();
+                mJcVideoPlayerStandard.setUiWitStateAndScreen(JCVideoPlayerStandard.CURRENT_STATE_PLAYING);
+            } else if (currentState == JCVideoPlayerStandard.CURRENT_STATE_AUTO_COMPLETE) {
+            		mJcVideoPlayerStandard.onEvent(JCUserAction.ON_CLICK_START_AUTO_COMPLETE);
+            		mJcVideoPlayerStandard.prepareMediaPlayer();
+            }
+		}
 	}
 	
 	
@@ -101,7 +151,14 @@ public class LbbCCVideo extends UZModule {
 	 */
 	@UzJavascriptMethod
 	public void jsmethod_stop(final UZModuleContext moduleContext){	
-		
+		if(mJcVideoPlayerStandard != null){
+			int  currentState = mJcVideoPlayerStandard.currentState;
+			if (currentState == JCVideoPlayerStandard.CURRENT_STATE_PLAYING) {
+            		mJcVideoPlayerStandard.onEvent(JCUserAction.ON_CLICK_PAUSE);
+                JCMediaManager.instance().mediaPlayer.pause();
+                mJcVideoPlayerStandard.setUiWitStateAndScreen(JCVideoPlayerStandard.CURRENT_STATE_PAUSE);
+            }
+		}
 	}
 	
 	/**
@@ -110,8 +167,35 @@ public class LbbCCVideo extends UZModule {
 	 */
 	@UzJavascriptMethod
 	public void jsmethod_seekTo(final UZModuleContext moduleContext){	
-		
+		if(mJcVideoPlayerStandard != null){
+			int position = moduleContext.optInt("position", 0);
+			if(position>=0 && position <= mJcVideoPlayerStandard.getDuration()){
+				mJcVideoPlayerStandard.seekTo(position);
+			}else if(position>=0){
+				mJcVideoPlayerStandard.seekToInAdvance = position;
+			}
+		}
 	}
+	/**
+	 * 获取当前播放进度
+	 * @param moduleContext
+	 */
+	@UzJavascriptMethod
+	public void jsmethod_getCurrentPosition(final UZModuleContext moduleContext){	
+		if(mJcVideoPlayerStandard != null){
+			int currentPosition = mJcVideoPlayerStandard.getCurrentPositionWhenPlaying();
+			int duration = mJcVideoPlayerStandard.getDuration();
+			JSONObject ret = new JSONObject();
+			try {
+				ret.put("currentPosition", currentPosition);
+				ret.put("duration", duration);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			moduleContext.success(ret, true);
+		}
+	}
+	
 	
 	
 	class MyUserActionStandard implements JCUserActionStandard {

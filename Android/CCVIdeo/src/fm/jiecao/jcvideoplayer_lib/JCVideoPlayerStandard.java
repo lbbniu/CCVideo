@@ -65,6 +65,7 @@ public class JCVideoPlayerStandard extends JCVideoPlayer {
 
         thumbImageView.setOnClickListener(this);
         backButton.setOnClickListener(this);
+        titleTextView.setOnClickListener(this);
         tinyBackImageView.setOnClickListener(this);
 
     }
@@ -196,7 +197,7 @@ public class JCVideoPlayerStandard extends JCVideoPlayer {
             }
         } else if (i == R.id.surface_container) {
             startDismissControlViewTimer();
-        } else if (i == R.id.back) {
+        } else if (i == R.id.back || i == R.id.title) {
             backPress();
         } else if (i == R.id.back_tiny) {
             backPress();

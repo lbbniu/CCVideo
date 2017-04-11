@@ -12,7 +12,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.provider.Settings;
-//import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -23,6 +22,8 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -329,6 +330,14 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
         }
         return false;
     }
+    public void seekTo(int position){
+    		if(position>0){
+    			JCMediaManager.instance().mediaPlayer.seekTo(position);
+    	        int duration = getDuration();
+    	        int progress = mSeekTimePosition * 100 / (duration == 0 ? 1 : duration);
+    	        progressBar.setProgress(progress);
+    		}
+    }
 
     public int widthRatio = 16;
     public int heightRatio = 9;
@@ -577,17 +586,18 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
             Log.d(TAG, "MEDIA_INFO_BUFFERING_END");
         }
     }
-
+    //TODO: lbbniu 空指针错误
     public void onVideoSizeChanged() {
         Log.i(TAG, "onVideoSizeChanged " + " [" + this.hashCode() + "] ");
         Point p = JCMediaManager.instance().getVideoSize();
         if (p != null) {
-        	JCMediaManager.textureView.setVideoSize(p);
+        		JCMediaManager.textureView.setVideoSize(p);
         }
     }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+    
     }
 
     @Override
@@ -655,7 +665,7 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
         if (old != null) {
             vp.removeView(old);
         }
-//        ((ViewGroup)JCMediaManager.textureView.getParent()).removeView(JCMediaManager.textureView);
+        ((ViewGroup)JCMediaManager.textureView.getParent()).removeView(JCMediaManager.textureView);
         textureViewContainer.removeView(JCMediaManager.textureView);
         try {
             Constructor<JCVideoPlayer> constructor = (Constructor<JCVideoPlayer>) JCVideoPlayer.this.getClass().getConstructor(Context.class);
@@ -668,8 +678,8 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
             jcVideoPlayer.setUiWitStateAndScreen(currentState);
             jcVideoPlayer.addTextureView();
             JCVideoPlayerManager.setSecondFloor(jcVideoPlayer);
-//            final Animation ra = AnimationUtils.loadAnimation(getContext(), R.anim.start_fullscreen);
-//            jcVideoPlayer.setAnimation(ra);
+            final Animation ra = AnimationUtils.loadAnimation(getContext(), R.anim.start_fullscreen);
+            jcVideoPlayer.setAnimation(ra);
             CLICK_QUIT_FULLSCREEN_TIME = System.currentTimeMillis();
         } catch (Exception e) {
             e.printStackTrace();
