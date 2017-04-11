@@ -35,8 +35,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.apicloud.pkg.sdk.R;
-
+import com.uzmap.pkg.uzcore.UZResourcesIDFinder;
 
 /**
  * Created by Nathen on 16/7/30.
@@ -122,14 +121,14 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
 
     public void init(Context context) {
         View.inflate(context, getLayoutId(), this);
-        startButton = (ImageView) findViewById(R.id.start);
-        fullscreenButton = (ImageView) findViewById(R.id.fullscreen);
-        progressBar = (SeekBar) findViewById(R.id.bottom_seek_progress);
-        currentTimeTextView = (TextView) findViewById(R.id.current);
-        totalTimeTextView = (TextView) findViewById(R.id.total);
-        bottomContainer = (ViewGroup) findViewById(R.id.layout_bottom);
-        textureViewContainer = (ViewGroup) findViewById(R.id.surface_container);
-        topContainer = (ViewGroup) findViewById(R.id.layout_top);
+        startButton = (ImageView) findViewById(UZResourcesIDFinder.getResIdID("start"));
+        fullscreenButton = (ImageView) findViewById(UZResourcesIDFinder.getResIdID("fullscreen"));
+        progressBar = (SeekBar) findViewById(UZResourcesIDFinder.getResIdID("bottom_seek_progress"));
+        currentTimeTextView = (TextView) findViewById(UZResourcesIDFinder.getResIdID("current"));
+        totalTimeTextView = (TextView) findViewById(UZResourcesIDFinder.getResIdID("total"));
+        bottomContainer = (ViewGroup) findViewById(UZResourcesIDFinder.getResIdID("layout_bottom"));
+        textureViewContainer = (ViewGroup) findViewById(UZResourcesIDFinder.getResIdID("surface_container"));
+        topContainer = (ViewGroup) findViewById(UZResourcesIDFinder.getResIdID("layout_top"));
 
         startButton.setOnClickListener(this);
         fullscreenButton.setOnClickListener(this);
@@ -158,10 +157,10 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
     @Override
     public void onClick(View v) {
         int i = v.getId();
-        if (i == R.id.start) {
+        if (i == UZResourcesIDFinder.getResIdID("start")) {
             Log.i(TAG, "onClick start [" + this.hashCode() + "] ");
             if (TextUtils.isEmpty(url)) {
-                Toast.makeText(getContext(), getResources().getString(R.string.no_url), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getResources().getString(UZResourcesIDFinder.getResStringID("no_url")), Toast.LENGTH_SHORT).show();
                 return;
             }
             if (currentState == CURRENT_STATE_NORMAL || currentState == CURRENT_STATE_ERROR) {
@@ -184,7 +183,7 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
                 onEvent(JCUserAction.ON_CLICK_START_AUTO_COMPLETE);
                 prepareMediaPlayer();
             }
-        } else if (i == R.id.fullscreen) {
+        } else if (i == UZResourcesIDFinder.getResIdID("fullscreen")) {
             Log.i(TAG, "onClick fullscreen [" + this.hashCode() + "] ");
             if (currentState == CURRENT_STATE_AUTO_COMPLETE) return;
             if (currentScreen == SCREEN_WINDOW_FULLSCREEN) {
@@ -195,7 +194,7 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
                 onEvent(JCUserAction.ON_ENTER_FULLSCREEN);
                 startWindowFullscreen();
             }
-        } else if (i == R.id.surface_container && currentState == CURRENT_STATE_ERROR) {
+        } else if (i == UZResourcesIDFinder.getResIdID("surface_container") && currentState == CURRENT_STATE_ERROR) {
             Log.i(TAG, "onClick surfaceContainer State=Error [" + this.hashCode() + "] ");
             prepareMediaPlayer();
         }
@@ -221,7 +220,7 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
         float x = event.getX();
         float y = event.getY();
         int id = v.getId();
-        if (id == R.id.surface_container) {
+        if (id == UZResourcesIDFinder.getResIdID("surface_container")) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     Log.i(TAG, "onTouch surfaceContainer actionDown [" + this.hashCode() + "] ");
@@ -678,7 +677,7 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
             jcVideoPlayer.setUiWitStateAndScreen(currentState);
             jcVideoPlayer.addTextureView();
             JCVideoPlayerManager.setSecondFloor(jcVideoPlayer);
-            final Animation ra = AnimationUtils.loadAnimation(getContext(), R.anim.start_fullscreen);
+            final Animation ra = AnimationUtils.loadAnimation(getContext(),UZResourcesIDFinder.getResAnimID("start_fullscreen"));
             jcVideoPlayer.setAnimation(ra);
             CLICK_QUIT_FULLSCREEN_TIME = System.currentTimeMillis();
         } catch (Exception e) {
