@@ -20,7 +20,6 @@ import android.util.Log;
 import cn.lbbniu.video.download.DownloadInfo;
 public class DataSet {
 	private final static String DOWNLOADINFO = "downloadinfo";
-
 	private final static String VIDEOPOSITION = "videoposition";
 	private static Map<String, DownloadInfo> downloadInfoMap;
 	
@@ -44,20 +43,10 @@ public class DataSet {
 						"createTime DATETIME, " +
 						"definition INTEGER)";
 				
-				String videoSql = "CREATE TABLE IF NOT EXISTS uploadinfo(" +
-						"id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-						"uploadId VERCHAR, status INTEGER, progress INTEGER, progressText VERCHAR, " +
-						"videoId VERCHAR, title VERCHAR, tags VERCHAR, description VERCHAR, categoryId VERCHAR, " +
-						"filePath VERCHAR, fileName VERCHAR, fileByteSize VERCHAR, md5 VERCHAR, " +
-						"uploadServer VERCHAR, serviceType VERCHAR, priority VERCHAR, encodeType VERCHAR, " +
-						"uploadOrResume VERCHAR, createTime DATETIME)";
-				
 				String videoPositionSql = "CREATE TABLE IF NOT EXISTS videoposition(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
 						"videoId VERCHAR, " +
-						"position INTEGER)";
-			
+						"position INTEGER)";			
 				db.execSQL(sql);
-				db.execSQL(videoSql);
 				db.execSQL(videoPositionSql);
 				
 			}
@@ -68,11 +57,9 @@ public class DataSet {
 	}
 	
 	private static void reloadData(){
-		
 		SQLiteDatabase db = sqLiteOpenHelper.getReadableDatabase();
 		Cursor cursor = null; 
 		try {
-			
 			// 重载下载信息
 			synchronized (downloadInfoMap) {
 				cursor = db.rawQuery("SELECT * FROM ".concat(DOWNLOADINFO), null);
@@ -98,13 +85,9 @@ public class DataSet {
 	public static void saveData(){
 		SQLiteDatabase db = sqLiteOpenHelper.getReadableDatabase();
 		db.beginTransaction();
-		
 		try {
-			
-			
 			//清除当前数据
 			db.delete(DOWNLOADINFO, null, null);
-			
 			for(DownloadInfo downloadInfo : downloadInfoMap.values()){
 				ContentValues values = new ContentValues();
 				values.put("videoId", downloadInfo.getVideoId());
@@ -113,25 +96,20 @@ public class DataSet {
 				values.put("progressText", downloadInfo.getProgressText());
 				values.put("status", downloadInfo.getStatus());
 				values.put("definition", downloadInfo.getDefinition());
-				
 				SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				values.put("createTime", formater.format(downloadInfo.getCreateTime()));
-				
 				db.insert(DOWNLOADINFO, null, values);
 			}
-			
 			db.setTransactionSuccessful();
 		} catch (Exception e) {
 			Log.e("db error", e.getMessage());
 		} finally {
 			db.endTransaction();
 		}
-		
 		db.close();
 	}
 	
 	public static List<DownloadInfo> getDownloadInfos(){
-		
 		return new ArrayList<DownloadInfo>(downloadInfoMap.values());
 	}
 	

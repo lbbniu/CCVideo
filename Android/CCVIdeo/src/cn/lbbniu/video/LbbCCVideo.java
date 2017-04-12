@@ -354,274 +354,59 @@ public class LbbCCVideo extends UZModule {
         }
     }
 	
-	
-	
-	private ServiceConnection serviceConnection;
-    private boolean isBind;
-    private DownloadService.DownloadBinder binder;
-	private Intent service;
-	private BroadcastReceiver mBroadcastReceiver;
-    private void bindServer() {
-		service = new Intent(mContext, DownloadService.class);
-		serviceConnection = new ServiceConnection() {
-			@Override
-			public void onServiceDisconnected(ComponentName name) {
-				//Log.i("service disconnected", name + "");
-			}
-
-			@Override
-			public void onServiceConnected(ComponentName name, IBinder service) {
-				binder = (DownloadService.DownloadBinder) service;
-				//Log.i("OO", "回调：===========binder = (DownloadBinder) service;======");
-			}
-		};
-		mContext.bindService(service, serviceConnection,
-				Context.BIND_AUTO_CREATE);
-		//Log.i("OO", "回调：===========bindServer======");
-	}
-    public void registerBoradcastReceiver(){  
-        IntentFilter myIntentFilter = new IntentFilter();  
-        myIntentFilter.addAction(ACTION_NAME);  
-        //myIntentFilter.addAction(BROCAST_CALLBACK);
-        //注册广播        
-        getContext().registerReceiver(mBroadcastReceiver, myIntentFilter);  
-    } 
-
-    private BroadcastReceiver mDownloadBroadcastReceiver = new BroadcastReceiver(){  
-        private Object currentDownloadTitle;
-
-		@Override  
-        public void onReceive(Context context, Intent intent) {  
-            String action = intent.getAction();  
-            //Log.i("OO", "回调：=====================lbbniu====="+action);
-            try {
-	            JSONObject ret = new JSONObject();
-	            if(action.equals(ConfigUtil.ACTION_DOWNLOADED)){//下载完成广播
-	
-	            }else if(action.equals(ConfigUtil.ACTION_DOWNLOADING)){//下载中广播          	
-	            	if (isBind) {
-	    				bindServer();
-	    			}
-	    			if (intent.getStringExtra("title") != null) {
-	    				currentDownloadTitle = intent.getStringExtra("title");
-	    			}
-	    			int downloadStatus = intent.getIntExtra("status", ParamsUtil.INVALID);
-	    			
-    				ret.put("status",downloadStatus);
-    				ret.put("progress", binder.getProgress());
-	    			// 若当前状态为下载中，则重置view的标记位置
-	    			if (downloadStatus == Downloader.DOWNLOAD || downloadStatus ==Downloader.WAIT) {
-	    				 //Log.i("OO", "回调：=========llllllll============Downloader.DOWNLOAD====="+downloadStatus);
-	    				//currentDownloadTitle = null;
-	    				 return ;
-	    			}
-	    			if (downloadStatus == Downloader.PAUSE) {
-	    				//currentDownloadTitle = null;
-	    				 if(mJsCallbackDownload != null){
-	    					 	//Log.i("OO", "回调：=========llllllll============Downloader.PAUSE====="+downloadStatus);
-	    	        			mJsCallbackDownload.success(ret, false);
-    	        		 }
-	    				 return ;
-	    			}   			   			
-	    			// 若当前状态为下载完成，且下载队列不为空，则启动service下载其他视频
-	    			if (downloadStatus == Downloader.FINISH) {	    			
-    	        		ret.put("videoId", currentDownloadTitle);
-    	        		ret.put("status", 1);
-    	        		ret.put("progress", 100);
-    	        		ret.put("finish", "YES");
-    	        		 AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-    	        		 AlertDialog.OnClickListener onClickListener = new AlertDialog.OnClickListener() {
-    	        				@Override
-    	        				public void onClick(DialogInterface dialog, int which) {
-    	        					//finish();
-    	        				}
-
-    	        			};
-    	 				//builder.setTitle("提示").setPositiveButton("OK", onClickListener).setMessage(currentDownloadTitle).setCancelable(false).show();
-    	        		if(mJsCallbackDownload != null){
-    	        			//Log.i("OO", "回调：========="+currentDownloadTitle+"============Downloader.FINISH====="+downloadStatus);
-    	        			mJsCallbackDownload.success(ret, true);
-    	        		}
-	    				return ;
-	    			}
-	    			
-	    			// 若下载出现异常，提示用户处理
-        			int errorCode = intent.getIntExtra("errorCode", ParamsUtil.INVALID);
-        			ret.put("errorCode",errorCode);
-        			ret.put("videoId",currentDownloadTitle);
-        			ret.put("finish", "NO");
-        			if (errorCode == ErrorCode.NETWORK_ERROR.Value()) {
-        				//Toast.makeText(context, "网络异常，请检查", Toast.LENGTH_SHORT).show();
-        				ret.put("status", 0);
-        			} else if (errorCode == ErrorCode.PROCESS_FAIL.Value()) {
-        				//Toast.makeText(context, "下载失败，请重试", Toast.LENGTH_SHORT).show();
-        				ret.put("status", 0);
-        			} else if (errorCode == ErrorCode.INVALID_REQUEST.Value()) {
-        				//Toast.makeText(context, "下载失败，请检查帐户信息", Toast.LENGTH_SHORT).show();
-        				ret.put("status", 0);
-        			}
-	        		if(mJsCallbackDownload != null){
-	        			ret.put("status", 0);
-	        			//Log.i("OO", "回调：=========INVALID_REQUEST============Downloader.FINISH====="+downloadStatus);
-	        			mJsCallbackDownload.success(ret, false);
-	        		}
-	            } 
-            } catch (JSONException e) {
-				e.printStackTrace();
-			}
-        }  
-          
-    };
-    private Timer timter = new Timer();
-	private String currentDownloadTitle;
+	/**
+	 * 开启下载服务
+	 * @param moduleContext
+	 */
     @UzJavascriptMethod
-	public void jsmethod_initDownload(final UZModuleContext moduleContext){
-    	timter.schedule(timerTask, 0, 1000);
-    	IntentFilter myIntentFilter = new IntentFilter();  
-        //myIntentFilter.addAction(BROCAST_CALLBACK);
-        myIntentFilter.addAction(ConfigUtil.ACTION_DOWNLOADED);
-        myIntentFilter.addAction(ConfigUtil.ACTION_DOWNLOADING);
-       //注册广播        
-        mContext.registerReceiver(mDownloadBroadcastReceiver, myIntentFilter);  
-        bindServer();
+	public void jsmethod_startDownloadSvr(final UZModuleContext moduleContext){
+
     }
     
+    /**
+     * 停止下载服务
+     * @param moduleContext
+     */
     @UzJavascriptMethod
-	public void jsmethod_download(final UZModuleContext moduleContext){
-    	String videoId = moduleContext.optString("videoId");
-    	String userId = moduleContext.optString("UserId");
-    	String apiKey = moduleContext.optString("apiKey");
-    	int isEncryption = moduleContext.optInt("isEncryption",0);
-    	//启动服务进行下载
-    	if(isBind){
-    		bindServer();
-    	}
-    	if(binder == null || binder.isStop()){
-    		Intent service = new Intent(getContext(), DownloadService.class);
-			service.putExtra("title",videoId);
-			service.putExtra("userId",userId);
-			service.putExtra("apiKey",apiKey);
-			service.putExtra("isEncryption",isEncryption);
-			getContext().startService(service);
-			currentDownloadTitle = videoId;
-    	}else if(videoId.equals(currentDownloadTitle)){
-    		switch (binder.getDownloadStatus()) {
-			case Downloader.PAUSE:
-				binder.download();
-				break;
-			case Downloader.WAIT:
-				binder.download();
-				break;
-			}
-    	}else{//取消下载，开始新的下载
-    		binder.cancel();
-    		Intent service = new Intent(mContext, DownloadService.class);
-			service.putExtra("title",videoId);
-			service.putExtra("userId",userId);
-			service.putExtra("apiKey",apiKey);
-			service.putExtra("isEncryption",isEncryption);
-			mContext.startService(service);
-			currentDownloadTitle = videoId;
-    	}   	
-    	mJsCallbackDownload = moduleContext;  	
-	}
-    public void jsmethod_downloadStop(final UZModuleContext moduleContext){    
-    	//Log.i("OO", "回调：=＝＝＝＝＝＝＝＝jsmethod_downloadStop＝＝＝＝＝＝＝＝＝＝＝");
-    	JSONObject ret = new JSONObject();
-    	try {
-    		if(!binder.isStop() && currentDownloadTitle != null){
-        		binder.pause();
-        	}
-    		ret.put("status", 1);
-			moduleContext.success(ret, true);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-	}
-    public void jsmethod_downloadStart(final UZModuleContext moduleContext){
-    	//Log.i("OO", "回调：=＝＝＝＝＝＝＝＝jsmethod_downloadStart＝＝＝＝＝＝＝＝＝＝＝");
-    	JSONObject ret = new JSONObject();
-    	try {
-    		if(binder.isStop() && currentDownloadTitle != null){
-        		binder.download();
-        	}
-    		ret.put("status", 1);
-			moduleContext.success(ret, true);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-	}
-    private int currentProgress = 0;	
-    @SuppressLint("HandlerLeak") 
-    private Handler handler = new Handler() {	
-		@Override
-		public void handleMessage(Message msg) {
-			String title = (String) msg.obj;
-			
-			if (title == null) {
-				return;
-			}		
-			int progress = binder.getProgress();
-			if (progress > 0) {
-				
-				if (currentProgress == progress || binder.getDownloadStatus() == Downloader.FINISH) {
-					return;
-				}
-				
-				currentProgress = progress;
-				if(mJsCallbackDownload!=null){
-					JSONObject ret = new JSONObject();
-	            	try {
-						ret.put("videoId", currentDownloadTitle);
-						ret.put("progress", progress);
-						ret.put("finish", "NO");
-						ret.put("status", 1);	
-						if(binder.getDownloadStatus() == Downloader.DOWNLOAD){
-							//Log.i("OO", "回调：=＝＝＝＝＝＝＝＝"+currentDownloadTitle+"＝＝＝＝＝＝＝＝＝＝＝"+progress);
-							mJsCallbackDownload.success(ret, false);
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			super.handleMessage(msg);
-		}
-	};
-    // 通过定时器和Handler来更新进度条
- 	private TimerTask timerTask = new TimerTask() {
+	public void jsmethod_stopDownloadSvr(final UZModuleContext moduleContext){
 
-		@Override
- 		public void run() {
- 			//Log.i("OO", "回调：=＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝");
- 			if (binder == null || binder.isStop()) {
- 				return;
- 			}
- 			// 判断是否存在正在下载的视频
- 			if (currentDownloadTitle == null) {
- 				currentDownloadTitle = binder.getTitle();
- 			}
- 			
-			if (currentDownloadTitle == null) {
- 				return;
- 			}
- 			
- 			Message msg = new Message();
- 			msg.obj = currentDownloadTitle;
-
- 			handler.sendMessage(msg);
- 		}
- 	};
-	public void jsmethod_rmVideo(final UZModuleContext moduleContext){
-		String videoId = moduleContext.optString("videoId");
-		File file = MediaUtil.createFile(videoId);
-    	if(file!=null&&file.exists()){
-    		file.delete();
-    	}
-		moduleContext.interrupt();
+    }
+    
+    /**
+     * 添加下载视频
+     * @param moduleContext
+     */
+    @UzJavascriptMethod
+	public void jsmethod_addDownloadVideo(final UZModuleContext moduleContext){
+    		
 	}
+    
+    /**
+     * 开始下载视频
+     * @param moduleContext
+     */
+    @UzJavascriptMethod
+	public void jsmethod_startDownloadVideo(final UZModuleContext moduleContext){
+    		
+	}
+    
+    /**
+     * 暂停下载视频
+     * @param moduleContext
+     */
+    @UzJavascriptMethod
+    public void jsmethod_pauseDownloadVideo(final UZModuleContext moduleContext){    
+    
+	}
+    
+    /**
+     * 删除指定视频
+     * @param moduleContext
+     */
+    @UzJavascriptMethod
+	public void jsmethod_rmDownloadVideo(final UZModuleContext moduleContext){
 	
-	
+	}
 	
 	@Override
 	protected void onClean() {
