@@ -129,20 +129,21 @@
 			}
 		}
 	    
-	    function openVideo(){
+	    function openVideo(vid){
 	        param = {
 	            title:"视频标题",
-	            videoId:"FD06098BB3DF4E2A9C33DC5901307461",
+	            videoId:vid,
 	            UserId:"CDE9DD8D9F25B1EF",
 	            apiKey:"x2vqfLcC3gTv69PaA0T5ZN6VdHw0sGI4",
+	            y:20,
 	            w:api.screenWidth,
 	            h:api.screenHeight,
 	            thumbImageUrl:"http://img4.jiecaojingxuan.com/2016/11/23/00b026e7-b830-4994-bc87-38f4033806a6.jpg@!640_360",
 	            autoPlay:true,
-	            fullscreen:false
+	            fullscreen:true
 	        };
 	        video.open(param,function (ret, err){
-	        
+	        	//api.alert({msg:ret});
 	        });
 	        video.seekTo({position:2000});
 	    }
@@ -177,7 +178,8 @@
 				<div style="font-size:0.8em;">acticity返回值:</div>
 				<div id="activity_result" style="width:100%;word-wrap: break-word;word-break: normal;"></div><br><br>
 			<div class='itemtitle'>cc视频</div>
-				<div class="clickbtn" tapmode="active" onclick="openVideo()" >打开视频</div>     
+				<div class="clickbtn" tapmode="active" onclick="openVideo('FD06098BB3DF4E2A9C33DC5901307461')" >打开视频1</div>     
+				<div class="clickbtn" tapmode="active" onclick="openVideo('AEAA2DF5A7BDDB379C33DC5901307461')" >打开视频2</div>     
 				<div class="clickbtn" tapmode="active" onclick="closeVideo()" >关闭视频</div>     
 				<div class="clickbtn" tapmode="active" onclick="startVideo()" >开始播放</div>     
 				<div class="clickbtn" tapmode="active" onclick="stopVideo()" >暂停播放</div>     

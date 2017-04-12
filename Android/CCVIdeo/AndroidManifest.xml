@@ -53,6 +53,10 @@
         	android:screenOrientation="portrait"
 			android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar"
         	android:configChanges="orientation|locale" />
+        <service
+            android:name="com.lbbniu.video.download.DownloadService"
+            android:enabled="true" >
+        </service>
     </application>
 
 </manifest>

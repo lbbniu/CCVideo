@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 
+import java.lang.reflect.Method;
 //import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -92,12 +93,15 @@ MediaPlayer.OnVideoSizeChangedListener {
                         mediaPlayer = new DWMediaPlayer();
                         mediaPlayer.reset();
                         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                        //Class<DWMediaPlayer> clazz = DWMediaPlayer.class;
+                        Class<DWMediaPlayer> clazz = DWMediaPlayer.class;
                         //Method method = clazz.getDeclaredMethod("setDataSource", String.class, Map.class);
                         //method.invoke(mediaPlayer, CURRENT_PLAYING_URL, MAP_HEADER_DATA);
-                        mediaPlayer.setVideoPlayInfo(CURRENT_PLAYING_URL, USERID, API_KEY, MCONTEXT);
-                        Log.d(TAG, "==========USERID="+USERID+"===API_KEY="+API_KEY+"===="+CURRENT_PLAYING_URL);
-                        //mediaPlayer.setDefaultDefinition(DWMediaPlayer.NORMAL_DEFINITION);
+                        //method.invoke(mediaPlayer, CURRENT_PLAYING_URL, MAP_HEADER_DATA);
+                        Method method = clazz.getDeclaredMethod("setVideoPlayInfo", String.class, String.class , String.class, Context.class);
+                        method.invoke(mediaPlayer, CURRENT_PLAYING_URL, USERID, API_KEY, MCONTEXT);
+                        //mediaPlayer.setVideoPlayInfo(CURRENT_PLAYING_URL, USERID, API_KEY, MCONTEXT);
+                        //Log.d(TAG, "==========USERID="+USERID+"===API_KEY="+API_KEY+"===="+CURRENT_PLAYING_URL);
+                        mediaPlayer.setDefaultDefinition(DWMediaPlayer.NORMAL_DEFINITION);
                         mediaPlayer.setLooping(CURRENT_PLING_LOOP);
                         mediaPlayer.setOnPreparedListener(JCMediaManager.this);	
                         mediaPlayer.setOnCompletionListener(JCMediaManager.this);

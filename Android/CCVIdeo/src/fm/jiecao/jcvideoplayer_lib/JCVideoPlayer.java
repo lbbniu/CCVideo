@@ -64,12 +64,12 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
     public static final int SCREEN_WINDOW_TINY = 3;
 
     public static final int CURRENT_STATE_NORMAL = 0;
-    public static final int CURRENT_STATE_PREPARING = 1;
-    public static final int CURRENT_STATE_PLAYING = 2;
-    public static final int CURRENT_STATE_PLAYING_BUFFERING_START = 3;
-    public static final int CURRENT_STATE_PAUSE = 5;
-    public static final int CURRENT_STATE_AUTO_COMPLETE = 6;
-    public static final int CURRENT_STATE_ERROR = 7;
+    public static final int CURRENT_STATE_PREPARING = 1;//首次加载中
+    public static final int CURRENT_STATE_PLAYING = 2;//正在播放
+    public static final int CURRENT_STATE_PLAYING_BUFFERING_START = 3;//缓冲中
+    public static final int CURRENT_STATE_PAUSE = 5;//暂停播放
+    public static final int CURRENT_STATE_AUTO_COMPLETE = 6;//播放结束
+    public static final int CURRENT_STATE_ERROR = 7;//加载失败
 
     public static int BACKUP_PLAYING_BUFFERING_STATE = -1;
 
@@ -158,7 +158,7 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
     public void onClick(View v) {
         int i = v.getId();
         if (i == UZResourcesIDFinder.getResIdID("start")) {
-            Log.i(TAG, "onClick start [" + this.hashCode() + "] ");
+            Log.i(TAG, "onClick start [" + this.hashCode() + "] currentState="+currentState);
             if (TextUtils.isEmpty(url)) {
                 Toast.makeText(getContext(), getResources().getString(UZResourcesIDFinder.getResStringID("no_url")), Toast.LENGTH_SHORT).show();
                 return;
@@ -509,6 +509,7 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
         Log.i(TAG, "playOnThisJcvd " + " [" + this.hashCode() + "] ");
         //1.清空全屏和小窗的jcvd
         currentState = JCVideoPlayerManager.getSecondFloor().currentState;
+        Log.i(TAG, "playOnThisJcvd " + " [currentState＝" + currentState + "] ");
         clearFloatScreen();
         //2.在本jcvd上播放
         setUiWitStateAndScreen(currentState);
@@ -588,9 +589,11 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
     //TODO: lbbniu 空指针错误
     public void onVideoSizeChanged() {
         Log.i(TAG, "onVideoSizeChanged " + " [" + this.hashCode() + "] ");
-        Point p = JCMediaManager.instance().getVideoSize();
-        if (p != null && JCMediaManager.textureView != null) {
-        		JCMediaManager.textureView.setVideoSize(p);
+        if(JCMediaManager.textureView != null){
+        	JCMediaManager.textureView.setVideoSize(JCMediaManager.instance().getVideoSize());
+        }
+        if(currentState == CURRENT_STATE_AUTO_COMPLETE){
+        	release();
         }
     }
 

@@ -1,4 +1,4 @@
-package fm.jiecao.jcvideoplayer_lib;
+package cn.lbbniu.video;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,6 +17,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,13 +27,17 @@ import java.util.TimerTask;
 
 import com.uzmap.pkg.uzcore.UZResourcesIDFinder;
 
+import fm.jiecao.jcvideoplayer_lib.JCUserActionStandard;
+import fm.jiecao.jcvideoplayer_lib.JCUtils;
+import fm.jiecao.jcvideoplayer_lib.JCVideoPlayer;
+
 
 
 /**
  * Created by Nathen
  * On 2016/04/18 16:15
  */
-public class JCVideoPlayerStandard extends JCVideoPlayer {
+public class LBBVideoPlayerStandard extends JCVideoPlayer {
 
     protected static Timer DISMISS_CONTROL_VIEW_TIMER;
 
@@ -40,17 +45,18 @@ public class JCVideoPlayerStandard extends JCVideoPlayer {
     public ProgressBar bottomProgressBar, loadingProgressBar;
     public TextView titleTextView;
     public ImageView thumbImageView;
-    public ImageView tinyBackImageView;
+    RelativeLayout.LayoutParams layout;
+    //public ImageView tinyBackImageView;
 
 
     protected DismissControlViewTimerTask mDismissControlViewTimerTask;
 
 
-    public JCVideoPlayerStandard(Context context) {
+    public LBBVideoPlayerStandard(Context context) {
         super(context);
     }
 
-    public JCVideoPlayerStandard(Context context, AttributeSet attrs) {
+    public LBBVideoPlayerStandard(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -62,12 +68,12 @@ public class JCVideoPlayerStandard extends JCVideoPlayer {
         backButton = (ImageView) findViewById(UZResourcesIDFinder.getResIdID("back"));
         thumbImageView = (ImageView) findViewById(UZResourcesIDFinder.getResIdID("thumb"));
         loadingProgressBar = (ProgressBar) findViewById(UZResourcesIDFinder.getResIdID("loading"));
-        tinyBackImageView = (ImageView) findViewById(UZResourcesIDFinder.getResIdID("back_tiny"));
+        //tinyBackImageView = (ImageView) findViewById(UZResourcesIDFinder.getResIdID("back_tiny"));
 
         thumbImageView.setOnClickListener(this);
         backButton.setOnClickListener(this);
-        titleTextView.setOnClickListener(this);
-        tinyBackImageView.setOnClickListener(this);
+        //titleTextView.setOnClickListener(this);
+        //tinyBackImageView.setOnClickListener(this);
 
     }
 
@@ -77,18 +83,20 @@ public class JCVideoPlayerStandard extends JCVideoPlayer {
         if (objects.length == 0) return;
         titleTextView.setText(objects[0].toString());
         if (currentScreen == SCREEN_WINDOW_FULLSCREEN) {
-            fullscreenButton.setImageResource(UZResourcesIDFinder.getResDrawableID("jc_shrink"));
+            fullscreenButton.setImageResource(UZResourcesIDFinder.getResDrawableID("lbb_shrink"));
             backButton.setVisibility(View.VISIBLE);
-            tinyBackImageView.setVisibility(View.INVISIBLE);
+            titleTextView.setVisibility(View.VISIBLE);
+            //tinyBackImageView.setVisibility(View.INVISIBLE);
             changeStartButtonSize((int) getResources().getDimension(UZResourcesIDFinder.getResDimenID("jc_start_button_w_h_fullscreen")));
         } else if (currentScreen == SCREEN_LAYOUT_NORMAL
                 || currentScreen == SCREEN_LAYOUT_LIST) {
-            fullscreenButton.setImageResource(UZResourcesIDFinder.getResDrawableID("jc_enlarge"));
+            fullscreenButton.setImageResource(UZResourcesIDFinder.getResDrawableID("lbb_enlarge"));
             backButton.setVisibility(View.GONE);
-            tinyBackImageView.setVisibility(View.INVISIBLE);
+            titleTextView.setVisibility(View.GONE);
+            //tinyBackImageView.setVisibility(View.INVISIBLE);
             changeStartButtonSize((int) getResources().getDimension(UZResourcesIDFinder.getResDimenID("jc_start_button_w_h_normal")));
         } else if (currentScreen == SCREEN_WINDOW_TINY) {
-            tinyBackImageView.setVisibility(View.VISIBLE);
+            //tinyBackImageView.setVisibility(View.VISIBLE);
             setAllControlsVisible(View.INVISIBLE, View.INVISIBLE, View.INVISIBLE,
                     View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.INVISIBLE);
         }
@@ -105,7 +113,7 @@ public class JCVideoPlayerStandard extends JCVideoPlayer {
 
     @Override
     public int getLayoutId() {
-        return UZResourcesIDFinder.getResLayoutID("jc_layout_standard");
+        return UZResourcesIDFinder.getResLayoutID("lbb_layout_standard");
     }
 
     @Override
@@ -560,6 +568,19 @@ public class JCVideoPlayerStandard extends JCVideoPlayer {
                                       int thumbImg, int coverImg, int bottomPro) {
         topContainer.setVisibility(topCon);
         bottomContainer.setVisibility(bottomCon);
+        if(currentScreen == SCREEN_WINDOW_FULLSCREEN){
+        	titleTextView.setVisibility(startBtn);
+        	if(layout != null){
+        		startButton.setLayoutParams(layout);
+        	}
+        }else{
+        	titleTextView.setVisibility(View.GONE);
+        	if(layout == null){
+        		layout =(RelativeLayout.LayoutParams) startButton.getLayoutParams();
+        	}
+        	RelativeLayout.LayoutParams layout1 = (RelativeLayout.LayoutParams) loadingProgressBar.getLayoutParams();
+        	startButton.setLayoutParams(layout1);
+        }
         startButton.setVisibility(startBtn);
         loadingProgressBar.setVisibility(loadingPro);
         thumbImageView.setVisibility(thumbImg);
@@ -568,11 +589,11 @@ public class JCVideoPlayerStandard extends JCVideoPlayer {
 
     public void updateStartImage() {
         if (currentState == CURRENT_STATE_PLAYING) {
-            startButton.setImageResource(UZResourcesIDFinder.getResDrawableID("jc_click_pause_selector"));
+            startButton.setImageResource(UZResourcesIDFinder.getResDrawableID("lbb_click_pause_selector"));
         } else if (currentState == CURRENT_STATE_ERROR) {
             startButton.setImageResource(UZResourcesIDFinder.getResDrawableID("jc_click_error_selector"));
         } else {
-            startButton.setImageResource(UZResourcesIDFinder.getResDrawableID("jc_click_play_selector"));
+            startButton.setImageResource(UZResourcesIDFinder.getResDrawableID("lbb_click_play_selector"));
         }
     }
 
