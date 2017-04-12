@@ -407,12 +407,17 @@ public class LbbCCVideo extends UZModule {
 	public void jsmethod_rmDownloadVideo(final UZModuleContext moduleContext){
 	
 	}
+    /**
+     * 获取下载视频列表
+     * @param moduleContext
+     */
+    @UzJavascriptMethod
+	public void jsmethod_getDownloadList(final UZModuleContext moduleContext){
+	
+	}
 	
 	@Override
 	protected void onClean() {
-		//timerTask.cancel();
-		//isBind=false;
-		//mContext.unregisterReceiver(mDownloadBroadcastReceiver);
 		LBBVideoPlayerStandard.releaseAllVideos();
 	}
 }

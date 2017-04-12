@@ -9,18 +9,12 @@ public class ConfigUtil {
 	public static String USERID = "CDE9DD8D9F25B1EF";
 
 	// 配置下载文件路径
-	public final static String DOWNLOAD_DIR = "CCDownload";
+	public final static String DOWNLOAD_DIR = "com/lbbniu/smallfly";
 	
 	// 配置视频回调地址
 	public final static String NOTIFY_URL = "http://www.example.com";
 	
 	/** Fragment */
-	
-	public final static int MAIN_FRAGMENT_MAX_TAB_SIZE = 3;
-	public final static int PLAY_TAB = 0;
-	public final static int DOWNLOAD_TAB = 2;
-	
-	public final static int DOWNLOAD_FRAGMENT_MAX_TAB_SIZE = 2;
 	public final static int DOWNLOADED = 0;
 	public final static int DOWNLOADING = 1;
 	
@@ -28,8 +22,6 @@ public class ConfigUtil {
 	
 	public final static String ACTION_DOWNLOADED = "demo.service.downloaded";
 	public final static String ACTION_DOWNLOADING = "demo.service.downloading";
-	
-	public final static int UPLOAD_REQUEST = 100;
 	
 	/** Input Info ID */
 	

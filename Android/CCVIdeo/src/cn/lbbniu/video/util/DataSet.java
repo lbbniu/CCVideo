@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.bokecc.sdk.mobile.download.Downloader;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -22,11 +24,13 @@ public class DataSet {
 	private final static String DOWNLOADINFO = "downloadinfo";
 	private final static String VIDEOPOSITION = "videoposition";
 	private static Map<String, DownloadInfo> downloadInfoMap;
+	//定义hashmap存储downloader信息
+	public static HashMap<String, Downloader> downloaderHashMap = new HashMap<String, Downloader>();
 	
 	private static SQLiteOpenHelper sqLiteOpenHelper;
 	
 	public static void init(Context context){
-		sqLiteOpenHelper = new SQLiteOpenHelper(context, "demo", null, 1) {
+		sqLiteOpenHelper = new SQLiteOpenHelper(context, "smallfly", null, 1) {
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			}
@@ -48,10 +52,8 @@ public class DataSet {
 						"position INTEGER)";			
 				db.execSQL(sql);
 				db.execSQL(videoPositionSql);
-				
 			}
 		};
-		
 		downloadInfoMap = new HashMap<String, DownloadInfo>();
 		reloadData();
 	}

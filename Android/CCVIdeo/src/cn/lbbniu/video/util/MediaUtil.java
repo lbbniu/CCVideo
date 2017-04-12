@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Environment;
 
 public class MediaUtil {
-
 	/**
 	 * 截取视频第一帧
 	 * 
@@ -50,7 +49,7 @@ public class MediaUtil {
 			File sdDir = Environment.getExternalStorageDirectory();// 获取根目录
 			File dir = new File(sdDir + "/" + ConfigUtil.DOWNLOAD_DIR);
 			if (!dir.exists()) {
-				dir.mkdir();
+				dir.mkdirs();
 			}
 			String path = dir + "/" + title + ".mp4";
 			file = new File(path);
