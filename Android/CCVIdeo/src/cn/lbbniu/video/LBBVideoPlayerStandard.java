@@ -25,11 +25,12 @@ import android.widget.Toast;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.lbbniu.jcvideoplayer_lib.JCUserActionStandard;
+import cn.lbbniu.jcvideoplayer_lib.JCUtils;
+import cn.lbbniu.jcvideoplayer_lib.JCVideoPlayer;
+
 import com.uzmap.pkg.uzcore.UZResourcesIDFinder;
 
-import fm.jiecao.jcvideoplayer_lib.JCUserActionStandard;
-import fm.jiecao.jcvideoplayer_lib.JCUtils;
-import fm.jiecao.jcvideoplayer_lib.JCVideoPlayer;
 
 
 

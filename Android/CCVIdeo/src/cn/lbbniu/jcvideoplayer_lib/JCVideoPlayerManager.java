@@ -1,4 +1,4 @@
-package fm.jiecao.jcvideoplayer_lib;
+package cn.lbbniu.jcvideoplayer_lib;
 
 /**
  * Put JCVideoPlayer into layout

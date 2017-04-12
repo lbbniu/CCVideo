@@ -25,6 +25,10 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 
+import cn.lbbniu.jcvideoplayer_lib.JCMediaManager;
+import cn.lbbniu.jcvideoplayer_lib.JCUserAction;
+import cn.lbbniu.jcvideoplayer_lib.JCUserActionStandard;
+import cn.lbbniu.jcvideoplayer_lib.JCUtils;
 import cn.lbbniu.video.download.DownloadService;
 import cn.lbbniu.video.util.ConfigUtil;
 import cn.lbbniu.video.util.MediaUtil;
@@ -38,10 +42,6 @@ import com.uzmap.pkg.uzcore.annotation.UzJavascriptMethod;
 import com.uzmap.pkg.uzcore.uzmodule.UZModule;
 import com.uzmap.pkg.uzcore.uzmodule.UZModuleContext;
 
-import fm.jiecao.jcvideoplayer_lib.JCMediaManager;
-import fm.jiecao.jcvideoplayer_lib.JCUserAction;
-import fm.jiecao.jcvideoplayer_lib.JCUserActionStandard;
-import fm.jiecao.jcvideoplayer_lib.JCUtils;
 public class LbbCCVideo extends UZModule {
 	private static final String ACTION_NAME = "aaaa";
 	private UZModuleContext mJsCallback;

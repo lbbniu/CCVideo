@@ -1,4 +1,4 @@
-package fm.jiecao.jcvideoplayer_lib;
+package cn.lbbniu.jcvideoplayer_lib;
 
 import android.app.ActionBar;
 import android.content.Context;
