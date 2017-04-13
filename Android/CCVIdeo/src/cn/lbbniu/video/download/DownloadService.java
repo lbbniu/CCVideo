@@ -400,6 +400,10 @@ public class DownloadService extends Service {
 				info.setEnd(end);
 				info.setProgress((int) ((double) start / end * 100));
 				if (info.getProgress() <= 100) {
+					//progressText = ParamsUtil.byteToM(start).
+					//		concat(" M / ").
+					//		concat(ParamsUtil.byteToM(end).
+					//		concat(" M"));
 					info.setProgressText(String.format(
 							text,
 							ParamsUtil.byteToM(start),
