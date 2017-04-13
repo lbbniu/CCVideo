@@ -1,6 +1,8 @@
 package cn.lbbniu.video.download;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import android.app.Service;
@@ -25,7 +27,8 @@ import com.bokecc.sdk.mobile.exception.DreamwinException;
 public class DownloadService extends Service {
 
 	private final String TAG = "cn.lbbniu.video.download";
-
+	private Map<String, Downloader> downloadMap = null;
+	private final int MAX_COUNT = 2; // 最大并行下载量
 	private Downloader downloader;
 	private File file;
 	private String title;
@@ -104,6 +107,7 @@ public class DownloadService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		downloadMap = new HashMap<String, Downloader>();
 	}
 
 	private String getVideoId(String title) {
