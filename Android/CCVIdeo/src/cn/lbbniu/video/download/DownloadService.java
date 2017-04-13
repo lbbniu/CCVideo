@@ -19,6 +19,7 @@ import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import cn.lbbniu.video.LbbDownloadDelegate;
 import cn.lbbniu.video.util.ConfigUtil;
 import cn.lbbniu.video.util.DataSet;
 import cn.lbbniu.video.util.MediaUtil;
@@ -66,11 +67,11 @@ public class DownloadService extends Service {
 	 */
 	private synchronized void start(String title) {
 		if(title == null){
-			if (LbbDownload.downloadingInfos != null && LbbDownload.downloadingInfos.isEmpty()) {
+			if (LbbDownloadDelegate.downloadingInfos != null && LbbDownloadDelegate.downloadingInfos.isEmpty()) {
 				Log.d("lbbniu","LbbDownload.downloadingInfos != null");
 				return;
 			}
-			for (DownloadInfo downloadInfo: LbbDownload.downloadingInfos) {
+			for (DownloadInfo downloadInfo: LbbDownloadDelegate.downloadingInfos) {
 				if (downloadInfo.getStatus() == Downloader.WAIT) {
 					title = downloadInfo.getTitle();
 					break;
@@ -82,7 +83,7 @@ public class DownloadService extends Service {
 			Log.i(TAG, "videoId is null");
 			return;
 		}
-		Downloader downloaderTool = LbbDownload.downloaderHashMap.get(title);
+		Downloader downloaderTool = LbbDownloadDelegate.downloaderHashMap.get(title);
 		if ( downloaderTool == null){
 			Log.d("lbbniu","downloaderTool == null____" + videoId);
 			File file = MediaUtil.createFile(title);
@@ -91,7 +92,7 @@ public class DownloadService extends Service {
 				return ;
 			}
 			downloaderTool = new Downloader(file, videoId, ConfigUtil.USERID, ConfigUtil.API_KEY);
-			LbbDownload.downloaderHashMap.put(title, downloaderTool);
+			LbbDownloadDelegate.downloaderHashMap.put(title, downloaderTool);
 		}
 		
 		if (downloadMap.size() < MAX_COUNT) { // 保证downloadMap.size() <= 2
@@ -377,7 +378,7 @@ public class DownloadService extends Service {
 				// 通知下载中队列
 				sendBroadcast(intent);
 				//移除完成的downloader
-				LbbDownload.downloaderHashMap.remove(videoId);
+				LbbDownloadDelegate.downloaderHashMap.remove(videoId);
 				if (downloadingInfos.containsKey(videoId)) {
 					downloadingInfos.remove(videoId);
 				}

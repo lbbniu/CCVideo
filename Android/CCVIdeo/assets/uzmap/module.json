@@ -23,6 +23,10 @@
 		{
 		    name:'ccVideo',
 		    class:'cn.lbbniu.video.LbbCCVideo'
+		},
+		{
+		    class:'cn.lbbniu.video.LbbDownloadDelegate'
 		}
+
 	]
 }

@@ -38,7 +38,7 @@ import com.uzmap.pkg.uzcore.UZResourcesIDFinder;
  * Created by Nathen
  * On 2016/04/18 16:15
  */
-public class LBBVideoPlayerStandard extends JCVideoPlayer {
+public class LbbVideoPlayerStandard extends JCVideoPlayer {
 
     protected static Timer DISMISS_CONTROL_VIEW_TIMER;
 
@@ -53,11 +53,11 @@ public class LBBVideoPlayerStandard extends JCVideoPlayer {
     protected DismissControlViewTimerTask mDismissControlViewTimerTask;
 
 
-    public LBBVideoPlayerStandard(Context context) {
+    public LbbVideoPlayerStandard(Context context) {
         super(context);
     }
 
-    public LBBVideoPlayerStandard(Context context, AttributeSet attrs) {
+    public LbbVideoPlayerStandard(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

@@ -1,41 +1,14 @@
 package cn.lbbniu.video;
-
-import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-
-
 import cn.lbbniu.jcvideoplayer_lib.JCMediaManager;
 import cn.lbbniu.jcvideoplayer_lib.JCUserAction;
 import cn.lbbniu.jcvideoplayer_lib.JCUserActionStandard;
 import cn.lbbniu.jcvideoplayer_lib.JCUtils;
-import cn.lbbniu.video.download.DownloadService;
-import cn.lbbniu.video.util.ConfigUtil;
-import cn.lbbniu.video.util.MediaUtil;
-import cn.lbbniu.video.util.ParamsUtil;
-
-import com.bokecc.sdk.mobile.download.Downloader;
-import com.bokecc.sdk.mobile.exception.ErrorCode;
 import com.squareup.picasso.Picasso;
 import com.uzmap.pkg.uzcore.UZWebView;
 import com.uzmap.pkg.uzcore.annotation.UzJavascriptMethod;
@@ -43,22 +16,19 @@ import com.uzmap.pkg.uzcore.uzmodule.UZModule;
 import com.uzmap.pkg.uzcore.uzmodule.UZModuleContext;
 
 public class LbbCCVideo extends UZModule {
-	private static final String ACTION_NAME = "aaaa";
 	private UZModuleContext mJsCallback;
 	private UZModuleContext mJsCallbackDownload;
-	
+	private LbbVideoPlayerStandard mJcVideoPlayerStandard;
 	
 	public LbbCCVideo(UZWebView webView) {
 		super(webView);
-		LBBVideoPlayerStandard.FULLSCREEN_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-		LBBVideoPlayerStandard.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+		LbbVideoPlayerStandard.FULLSCREEN_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+		LbbVideoPlayerStandard.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 		JCMediaManager.USERID = super.getFeatureValue("lbbVideo", "UserId");
 		JCMediaManager.API_KEY = super.getFeatureValue("lbbVideo", "apiKey");
 		JCMediaManager.MCONTEXT = getContext();
-		LBBVideoPlayerStandard.setJcUserAction(new MyUserActionStandard());
+		LbbVideoPlayerStandard.setJcUserAction(new MyUserActionStandard());
 	}
-	
-	LBBVideoPlayerStandard mJcVideoPlayerStandard;
 	/**
 	 * 打开视频界面
 	 * @param moduleContext
@@ -67,7 +37,7 @@ public class LbbCCVideo extends UZModule {
 	public void jsmethod_open(final UZModuleContext moduleContext){	
 		mJsCallback = moduleContext;
 		if(null == mJcVideoPlayerStandard){			
-			mJcVideoPlayerStandard = new LBBVideoPlayerStandard(getContext());
+			mJcVideoPlayerStandard = new LbbVideoPlayerStandard(getContext());
 		}else{
 			mJcVideoPlayerStandard.release();
 		}
@@ -96,7 +66,7 @@ public class LbbCCVideo extends UZModule {
 		
 		JCMediaManager.USERID = moduleContext.optString("UserId");
 		JCMediaManager.API_KEY = moduleContext.optString("apiKey");
-		mJcVideoPlayerStandard.setUp(mJsCallback.optString("videoId") , LBBVideoPlayerStandard.SCREEN_LAYOUT_NORMAL, mJsCallback.optString("title"));
+		mJcVideoPlayerStandard.setUp(mJsCallback.optString("videoId") , LbbVideoPlayerStandard.SCREEN_LAYOUT_NORMAL, mJsCallback.optString("title"));
 		
 		//视频缩略图
 		String thumbImageUrl = moduleContext.optString("thumbImageUrl");	
@@ -153,7 +123,7 @@ public class LbbCCVideo extends UZModule {
 	@UzJavascriptMethod
 	public void jsmethod_back(final UZModuleContext moduleContext){
 		if(mJcVideoPlayerStandard != null){
-			LBBVideoPlayerStandard.backPress();
+			LbbVideoPlayerStandard.backPress();
 			JSONObject ret = getPostion();
 			try {
 				ret.put("status", 1);
@@ -173,18 +143,18 @@ public class LbbCCVideo extends UZModule {
 	public void jsmethod_start(final UZModuleContext moduleContext){	
 		if(mJcVideoPlayerStandard != null){
 			int  currentState = mJcVideoPlayerStandard.currentState;
-			if (currentState == LBBVideoPlayerStandard.CURRENT_STATE_NORMAL || currentState == LBBVideoPlayerStandard.CURRENT_STATE_ERROR) {
-                if (!mJcVideoPlayerStandard.url.startsWith("file") && !JCUtils.isWifiConnected(getContext()) && !LBBVideoPlayerStandard.WIFI_TIP_DIALOG_SHOWED) {
+			if (currentState == LbbVideoPlayerStandard.CURRENT_STATE_NORMAL || currentState == LbbVideoPlayerStandard.CURRENT_STATE_ERROR) {
+                if (!mJcVideoPlayerStandard.url.startsWith("file") && !JCUtils.isWifiConnected(getContext()) && !LbbVideoPlayerStandard.WIFI_TIP_DIALOG_SHOWED) {
                 		mJcVideoPlayerStandard.showWifiDialog();
                     return;
                 }
                 mJcVideoPlayerStandard.prepareMediaPlayer();
-                mJcVideoPlayerStandard.onEvent(currentState != LBBVideoPlayerStandard.CURRENT_STATE_ERROR ? JCUserAction.ON_CLICK_START_ICON : JCUserAction.ON_CLICK_START_ERROR);
-            } else if (currentState == LBBVideoPlayerStandard.CURRENT_STATE_PAUSE) {
+                mJcVideoPlayerStandard.onEvent(currentState != LbbVideoPlayerStandard.CURRENT_STATE_ERROR ? JCUserAction.ON_CLICK_START_ICON : JCUserAction.ON_CLICK_START_ERROR);
+            } else if (currentState == LbbVideoPlayerStandard.CURRENT_STATE_PAUSE) {
             		mJcVideoPlayerStandard.onEvent(JCUserAction.ON_CLICK_RESUME);
                 JCMediaManager.instance().mediaPlayer.start();
-                mJcVideoPlayerStandard.setUiWitStateAndScreen(LBBVideoPlayerStandard.CURRENT_STATE_PLAYING);
-            } else if (currentState == LBBVideoPlayerStandard.CURRENT_STATE_AUTO_COMPLETE) {
+                mJcVideoPlayerStandard.setUiWitStateAndScreen(LbbVideoPlayerStandard.CURRENT_STATE_PLAYING);
+            } else if (currentState == LbbVideoPlayerStandard.CURRENT_STATE_AUTO_COMPLETE) {
             		mJcVideoPlayerStandard.onEvent(JCUserAction.ON_CLICK_START_AUTO_COMPLETE);
             		mJcVideoPlayerStandard.prepareMediaPlayer();
             }
@@ -207,10 +177,10 @@ public class LbbCCVideo extends UZModule {
 	public void jsmethod_stop(final UZModuleContext moduleContext){	
 		if(mJcVideoPlayerStandard != null){
 			int  currentState = mJcVideoPlayerStandard.currentState;
-			if (currentState == LBBVideoPlayerStandard.CURRENT_STATE_PLAYING) {
+			if (currentState == LbbVideoPlayerStandard.CURRENT_STATE_PLAYING) {
             		mJcVideoPlayerStandard.onEvent(JCUserAction.ON_CLICK_PAUSE);
                 JCMediaManager.instance().mediaPlayer.pause();
-                mJcVideoPlayerStandard.setUiWitStateAndScreen(LBBVideoPlayerStandard.CURRENT_STATE_PAUSE);
+                mJcVideoPlayerStandard.setUiWitStateAndScreen(LbbVideoPlayerStandard.CURRENT_STATE_PAUSE);
             }
 			JSONObject ret = getPostion();
 			try {
@@ -418,6 +388,6 @@ public class LbbCCVideo extends UZModule {
 	
 	@Override
 	protected void onClean() {
-		LBBVideoPlayerStandard.releaseAllVideos();
+		LbbVideoPlayerStandard.releaseAllVideos();
 	}
 }
