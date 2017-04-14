@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +25,7 @@ public class DataSet {
 	private final static String VIDEOPOSITION = "videoposition";
 	private static Map<String, DownloadInfo> downloadInfoMap;
 	//定义hashmap存储downloader信息
-	public static HashMap<String, Downloader> downloaderHashMap = new HashMap<String, Downloader>();
+	public static LinkedHashMap<String, Downloader> downloaderHashMap = new LinkedHashMap<String, Downloader>();
 	
 	private static SQLiteOpenHelper sqLiteOpenHelper;
 	
@@ -54,7 +54,7 @@ public class DataSet {
 				db.execSQL(videoPositionSql);
 			}
 		};
-		downloadInfoMap = new HashMap<String, DownloadInfo>();
+		downloadInfoMap = new LinkedHashMap<String, DownloadInfo>();
 		reloadData();
 	}
 	
