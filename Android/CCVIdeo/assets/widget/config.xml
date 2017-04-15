@@ -4,8 +4,12 @@
     <author email="developer@apicloud.com" href="http://www.apicloud.com">
         developer
     </author>
-    <content src="index.html" />
+    <content src="index_frm.html" />
     <access origin="*" />
     <preference name="bounces" value="true" />
     <preference name="customRefreshHeader" value="cusHeader" />
+    <feature name="lbbVideo">
+        <param name="userId" value="CDE9DD8D9F25B1EF"/>
+        <param name="apiKey" value="x2vqfLcC3gTv69PaA0T5ZN6VdHw0sGI4"/>
+    </feature>
 </widget>

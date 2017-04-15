@@ -8,6 +8,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.bokecc.sdk.mobile.download.Downloader;
 
 import android.content.ContentValues;
@@ -43,6 +47,8 @@ public class DataSet {
 						"title VERCHAR, " +
 						"progress INTEGER, " +
 						"progressText VERCHAR, " +
+						"downloadSize INTEGER, " +
+						"fileSize INTEGER, " +
 						"status INTEGER, " +
 						"createTime DATETIME, " +
 						"definition INTEGER)";
@@ -83,7 +89,9 @@ public class DataSet {
 			}
 		}
 	}
-	
+	/**
+	 * 保存下载信息到数据库中
+	 */
 	public static void saveData(){
 		SQLiteDatabase db = sqLiteOpenHelper.getReadableDatabase();
 		db.beginTransaction();
@@ -98,6 +106,8 @@ public class DataSet {
 				values.put("progressText", downloadInfo.getProgressText());
 				values.put("status", downloadInfo.getStatus());
 				values.put("definition", downloadInfo.getDefinition());
+				values.put("downloadSize", downloadInfo.getDownloadSize());
+				values.put("fileSize", downloadInfo.getFileSize());
 				SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				values.put("createTime", formater.format(downloadInfo.getCreateTime()));
 				db.insert(DOWNLOADINFO, null, values);
@@ -111,18 +121,36 @@ public class DataSet {
 		db.close();
 	}
 	
+	/**
+	 * 获取所有下载信息
+	 * @return
+	 */
 	public static List<DownloadInfo> getDownloadInfos(){
 		return new ArrayList<DownloadInfo>(downloadInfoMap.values());
 	}
 	
+	/**
+	 * 判断下载信息是否存在
+	 * @param Title
+	 * @return
+	 */
 	public static boolean hasDownloadInfo(String Title){
 		return downloadInfoMap.containsKey(Title);
 	}
 	
+	/**
+	 * 获取下载信息
+	 * @param Title
+	 * @return
+	 */
 	public static DownloadInfo getDownloadInfo(String Title){
 		return downloadInfoMap.get(Title);
 	}
 	
+	/**
+	 * 增加下载信息
+	 * @param downloadInfo
+	 */
 	public static void addDownloadInfo(DownloadInfo downloadInfo){
 		synchronized (downloadInfoMap) {
 			if (downloadInfoMap.containsKey(downloadInfo.getTitle())) {
@@ -133,32 +161,55 @@ public class DataSet {
 		}
 	}
 	
+	/**
+	 * 删除下载信息
+	 * @param title
+	 */
 	public static void removeDownloadInfo(String title){
 		synchronized (downloadInfoMap) {
 			downloadInfoMap.remove(title);
 		}
 	}
 	
+	/**
+	 * 更新下载信息
+	 * @param downloadInfo
+	 */
 	public static void updateDownloadInfo(DownloadInfo downloadInfo){
 		synchronized (downloadInfoMap) {
+			if(downloadInfo.getStatus() == Downloader.FINISH && downloadInfo.getProgress() != 100){
+				downloadInfo.setProgress(100);
+				downloadInfo.setProgressText("");
+			}
 			downloadInfoMap.put(downloadInfo.getTitle(), downloadInfo);
 		}
-		
 	}
-	
+	/**
+	 * build 下载信息
+	 * @param cursor
+	 * @return
+	 * @throws ParseException
+	 */
 	private static DownloadInfo buildDownloadInfo(Cursor cursor) throws ParseException{
 		SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date createTime = formater.parse(cursor.getString(cursor.getColumnIndex("createTime")));
 		DownloadInfo downloadInfo = new DownloadInfo(cursor.getString(cursor.getColumnIndex("videoId")), 
 				cursor.getString(cursor.getColumnIndex("title")),
 				cursor.getInt(cursor.getColumnIndex("progress")), 
+				cursor.getInt(cursor.getColumnIndex("downloadSize")), 
+				cursor.getInt(cursor.getColumnIndex("fileSize")), 
 				cursor.getString(cursor.getColumnIndex("progressText")), 
 				cursor.getInt(cursor.getColumnIndex("status")), 
 				createTime,
 				cursor.getInt(cursor.getColumnIndex("definition")));
+		downloadInfo.setId(cursor.getInt(cursor.getColumnIndex("id")));
 		return downloadInfo;
 	}
-
+	/**
+	 * 插入播放进度
+	 * @param videoId
+	 * @param position
+	 */
 	public static void insertVideoPosition(String videoId, int position) {
 		
 		SQLiteDatabase database = sqLiteOpenHelper.getWritableDatabase();
@@ -171,6 +222,11 @@ public class DataSet {
 		}
 	}
 	
+	/**
+	 * 获取播放进度
+	 * @param videoId
+	 * @return
+	 */
 	public static int getVideoPosition(String videoId) {
 		int position = 0;
 		SQLiteDatabase database = sqLiteOpenHelper.getReadableDatabase();
@@ -184,7 +240,11 @@ public class DataSet {
 		}
 		return position;
 	}
-	
+	/**
+	 * 更新播放进度
+	 * @param videoId
+	 * @param position
+	 */
 	public static void updateVideoPosition(String videoId, int position) {
 		SQLiteDatabase database = sqLiteOpenHelper.getWritableDatabase();
 		if (database.isOpen()) {

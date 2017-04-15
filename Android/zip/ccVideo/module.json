@@ -1,0 +1,8 @@
+{
+    name:'ccVideo',
+    class:'cn.lbbniu.video.LbbCCVideo'
+},
+{
+	name:'LbbDownloadDelegate',
+    class:'cn.lbbniu.video.LbbDownloadDelegate'
+}

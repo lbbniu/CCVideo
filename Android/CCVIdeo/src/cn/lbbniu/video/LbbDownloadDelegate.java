@@ -19,10 +19,6 @@ import com.uzmap.pkg.uzcore.uzmodule.ApplicationDelegate;
  * 该类需要在module.json中配置，其中name字段可以任意配置，因为该字段将被忽略，请参考module.json中EasDelegate的配置
  */
 public class LbbDownloadDelegate extends ApplicationDelegate {
-	//定义hashmap存储downloader信息
-	public static HashMap<String, Downloader> downloaderHashMap = new HashMap<String, Downloader>();
-	//下载中的列表
-	public static List<DownloadInfo> downloadingInfos = null;
 	/**
 	 * 继承自ApplicationDelegate的类，APICloud引擎在应用初始化之初就会将该类初始化一次（即new一个出来），并保持引用，
 	 * 在应用整个运行期间，会将生命周期事件通过该对象通知出来。<br>
@@ -30,13 +26,13 @@ public class LbbDownloadDelegate extends ApplicationDelegate {
 	 */
 	public LbbDownloadDelegate() {
 		//应用运行期间，该对象只会初始化一个出来
-		downloadingInfos = new ArrayList<DownloadInfo>();
 	}
 
 	@Override
 	public void onApplicationCreate(Context context, AppInfo info) {
 		//TODO 请在这个函数中初始化需要在Application的onCreate中初始化的东西
 		DataSet.init(context);
+		LbbDownloadControl.initDownloaderHashMap();
 	}
 
 	@Override

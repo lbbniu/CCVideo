@@ -2,9 +2,7 @@ package cn.lbbniu.video.download;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -16,10 +14,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import cn.lbbniu.video.LbbDownloadDelegate;
+import cn.lbbniu.video.LbbDownloadControl;
 import cn.lbbniu.video.util.ConfigUtil;
 import cn.lbbniu.video.util.DataSet;
 import cn.lbbniu.video.util.MediaUtil;
@@ -46,7 +41,7 @@ public class DownloadService extends Service {
 	private final int MAX_COUNT = 2; // 最大并行下载量
 	private int currentCount = 0; // 当前并行下载量
 	
-	private String title;
+	//private String title;
 	private DownloadBinder binder = new DownloadBinder();
 	
 	/**
@@ -66,24 +61,12 @@ public class DownloadService extends Service {
 	 * TODO:需要修改
 	 */
 	private synchronized void start(String title) {
-		if(title == null){
-			if (LbbDownloadDelegate.downloadingInfos != null && LbbDownloadDelegate.downloadingInfos.isEmpty()) {
-				Log.d("lbbniu","LbbDownload.downloadingInfos != null");
-				return;
-			}
-			for (DownloadInfo downloadInfo: LbbDownloadDelegate.downloadingInfos) {
-				if (downloadInfo.getStatus() == Downloader.WAIT) {
-					title = downloadInfo.getTitle();
-					break;
-				}
-			}
-		}
 		String videoId = getVideoId(title);
 		if (videoId == null) {
 			Log.i(TAG, "videoId is null");
 			return;
 		}
-		Downloader downloaderTool = LbbDownloadDelegate.downloaderHashMap.get(title);
+		Downloader downloaderTool = LbbDownloadControl.downloaderHashMap.get(title);
 		if ( downloaderTool == null){
 			Log.d("lbbniu","downloaderTool == null____" + videoId);
 			File file = MediaUtil.createFile(title);
@@ -92,7 +75,7 @@ public class DownloadService extends Service {
 				return ;
 			}
 			downloaderTool = new Downloader(file, videoId, ConfigUtil.USERID, ConfigUtil.API_KEY);
-			LbbDownloadDelegate.downloaderHashMap.put(title, downloaderTool);
+			LbbDownloadControl.downloaderHashMap.put(title, downloaderTool);
 		}
 		
 		if (downloadMap.size() < MAX_COUNT) { // 保证downloadMap.size() <= 2
@@ -101,7 +84,6 @@ public class DownloadService extends Service {
 				currentCount++;
 			}
 			downloaderTool.setDownloadListener(downloadListener);
-			//downloaderTool.start();
 			if (downloaderTool.getStatus() == Downloader.WAIT) {
 				downloaderTool.start();
 			}
@@ -117,8 +99,7 @@ public class DownloadService extends Service {
 			Log.d("lbbniu","开始下载____" + videoId);
 		} else {
 			Log.d("lbbniu","等待啊啊____" + videoId);
-		}
-				
+		}			
 	}
 	
 	/**
@@ -137,10 +118,7 @@ public class DownloadService extends Service {
 			}
 			downloadMap.remove(videoId);
 			currentCount--;
-			//TODO: 暂停一个视频，可以继续下载等待中的 start(null);
-			//return true;
 		}
-		//return false;
 	}
 	
 	/** 暂停所有的下载任务 */
@@ -186,8 +164,8 @@ public class DownloadService extends Service {
     
 	public class DownloadBinder extends Binder {
 		
-		public String getTitle(){
-			return title;
+		public DownloadingInfo getDownloadingInfo(String videoId){
+			return downloadingInfos.get(videoId);
 		}
 		
 		public int getProgress(String videoId){
@@ -196,13 +174,26 @@ public class DownloadService extends Service {
 			}
 			return 0;
 		}
-		
+		/*
+		public long getStart(String videoId){
+			if(downloadingInfos.containsKey(videoId)){
+				return downloadingInfos.get(videoId).getStart();
+			}
+			return 0;
+		}
+		public long getEnd(String videoId){
+			if(downloadingInfos.containsKey(videoId)){
+				return downloadingInfos.get(videoId).getEnd();
+			}
+			return 0;
+		}
 		public String getProgressText(String videoId){
 			if(downloadingInfos.containsKey(videoId)){
 				return downloadingInfos.get(videoId).getProgressText();
 			}
 			return null;
-		}
+		}*/
+		
 		public boolean isStop(){
 			return downloadMap.isEmpty();
 		}
@@ -224,14 +215,7 @@ public class DownloadService extends Service {
 		}
 		
 		public void cancel(String videoId){
-			if(downloadMap.containsKey(videoId)){
-				Downloader downloader = downloadMap.get(videoId);
-				pauseVideo(videoId);
-				if (downloader == null) {
-					return;
-				}
-				downloader.cancel();
-			}
+			delete(videoId);
 		}
 		
 		public int getDownloadStatus(String videoId){
@@ -286,48 +270,20 @@ public class DownloadService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		
 		if (intent == null) {
 			Log.i(TAG, "intent is null.");
 			return android.app.Service.START_STICKY;
 		}
 		
-		title = intent.getStringExtra("title");
+		String title = intent.getStringExtra("title");
 		if (title == null) {
 			Log.i(TAG, "title is null");
 			return android.app.Service.START_STICKY;
 		}
+		
 		prepare(title);
 		Log.i(TAG, "Start download service");
 		return super.onStartCommand(intent, flags, startId);
-		/*
-		videoId = getVideoId(title);
-		if (videoId == null) {
-			Log.i(TAG, "videoId is null");
-			return android.app.Service.START_STICKY;
-		}
-		downloader = DownloadFragment.downloaderHashMap.get(title);
-		if ( downloader == null){
-			file = MediaUtil.createFile(title);
-			if (file == null) {
-				Log.i(TAG, "File is null");
-				return android.app.Service.START_STICKY;
-			}
-			downloader = new Downloader(file, videoId, ConfigUtil.USERID, ConfigUtil.API_KEY);
-			DownloadFragment.downloaderHashMap.put(title, downloader);
-		}
-		
-		downloader.setDownloadListener(downloadListener);
-		downloader.start();
-		
-		Intent notifyIntent = new Intent(ConfigUtil.ACTION_DOWNLOADING);
-		notifyIntent.putExtra("status", Downloader.WAIT);
-		notifyIntent.putExtra("title", title);
-		sendBroadcast(notifyIntent);
-		stop = false;
-	
-		Log.i(TAG, "Start download service");
-		return super.onStartCommand(intent, flags, startId);*/
 	}
 
 	@Override
@@ -378,7 +334,7 @@ public class DownloadService extends Service {
 				// 通知下载中队列
 				sendBroadcast(intent);
 				//移除完成的downloader
-				LbbDownloadDelegate.downloaderHashMap.remove(videoId);
+				LbbDownloadControl.downloaderHashMap.remove(videoId);
 				if (downloadingInfos.containsKey(videoId)) {
 					downloadingInfos.remove(videoId);
 				}
@@ -386,7 +342,8 @@ public class DownloadService extends Service {
 				break;
 			}
 		}
-		String text = "已下载%sM / 共%sM \n占比%s  \n下载速度%skb/s";
+		//String text = "已下载%sM / 共%sM 占比%s  \n下载速度%skb/s";
+		String text = "已下载%sM / 共%sM 占比%s 下载速度%skb/s";
 		@Override
 		public void handleProcess(long start, long end, String videoId) {
 			if (downloadMap.isEmpty()) {
@@ -401,10 +358,6 @@ public class DownloadService extends Service {
 				info.setEnd(end);
 				info.setProgress((int) ((double) start / end * 100));
 				if (info.getProgress() <= 100) {
-					//progressText = ParamsUtil.byteToM(start).
-					//		concat(" M / ").
-					//		concat(ParamsUtil.byteToM(end).
-					//		concat(" M"));
 					info.setProgressText(String.format(
 							text,
 							ParamsUtil.byteToM(start),
@@ -436,22 +389,27 @@ public class DownloadService extends Service {
 		
 		@Override
 		public void handleException(DreamwinException exception, int status) {
-			Log.i("Download exception", exception.getErrorCode().Value() + " : " + title+":status="+status);
+			Log.i("Download exception", exception.getErrorCode().Value() + " :status="+status);
+			for (String title : downloadMap.keySet()) {
+				Downloader downloader = downloadMap.get(title);
+				if(downloader.getStatus() != Downloader.DOWNLOAD){
+					Intent intent = new Intent(ConfigUtil.ACTION_DOWNLOADING);
+					intent.putExtra("errorCode", exception.getErrorCode().Value());
+					intent.putExtra("status", status);
+					intent.putExtra("title", title);
+					sendBroadcast(intent);
+				}
+			}
+			updateDownloadInfoByStatus(status);
 			// 停掉服务自身
 			if(downloadMap.isEmpty()){
 				stopSelf();
 			}
-			updateDownloadInfoByStatus(status);
-		
-			Intent intent = new Intent(ConfigUtil.ACTION_DOWNLOADING);
-			intent.putExtra("errorCode", exception.getErrorCode().Value());
-			intent.putExtra("title", title);
-			sendBroadcast(intent);
 		}
 
 		@Override
 		public void handleCancel(String videoId) {
-			Log.i(TAG, "cancel download, title: " + title + ", videoId: " + videoId);
+			Log.i(TAG, "cancel download, videoId: " + videoId);
 			if(downloadMap.isEmpty()){
 				stopSelf();
 			}
@@ -466,9 +424,8 @@ public class DownloadService extends Service {
 		downloadInfo.setStatus(status);
 		if (downloadingInfo != null && downloadingInfo.getProgress() > 0) {
 			downloadInfo.setProgress(downloadingInfo.getProgress());
-		}
-		
-		if (downloadingInfo != null && downloadingInfo.getProgressText() != null) {
+			downloadInfo.setDownloadSize(downloadingInfo.getStart());
+			downloadInfo.setFileSize(downloadingInfo.getEnd());
 			downloadInfo.setProgressText(downloadingInfo.getProgressText());
 		}
 		DataSet.updateDownloadInfo(downloadInfo);

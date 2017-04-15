@@ -14,7 +14,6 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import java.lang.reflect.Method;
-//import java.lang.reflect.Method;
 import java.util.Map;
 
 import com.bokecc.sdk.mobile.play.DWMediaPlayer;
@@ -34,15 +33,18 @@ MediaPlayer.OnCompletionListener,
 MediaPlayer.OnSeekCompleteListener, 
 MediaPlayer.OnVideoSizeChangedListener {
     public static String TAG = "JieCaoVideoPlayer";
-
+    
     private static JCMediaManager JCMediaManager;
     public static JCResizeTextureView textureView;
     public static SurfaceTexture savedSurfaceTexture;
     public DWMediaPlayer mediaPlayer = new DWMediaPlayer();
     public static String USERID;
+    public static boolean isLocalPlay;
     public static String API_KEY;
     public static String CURRENT_PLAYING_URL;
     public static Context MCONTEXT;
+    // 默认设置为普清
+    public static int defaultDefinition = DWMediaPlayer.NORMAL_DEFINITION;
     public static boolean CURRENT_PLING_LOOP;
     public static Map<String, String> MAP_HEADER_DATA;
     public int currentVideoWidth = 0;
@@ -94,13 +96,15 @@ MediaPlayer.OnVideoSizeChangedListener {
                         mediaPlayer.reset();
                         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                         Class<DWMediaPlayer> clazz = DWMediaPlayer.class;
-                        //Method method = clazz.getDeclaredMethod("setDataSource", String.class, Map.class);
-                        //method.invoke(mediaPlayer, CURRENT_PLAYING_URL, MAP_HEADER_DATA);
-                        //method.invoke(mediaPlayer, CURRENT_PLAYING_URL, MAP_HEADER_DATA);
-                        Method method = clazz.getDeclaredMethod("setVideoPlayInfo", String.class, String.class , String.class, Context.class);
-                        method.invoke(mediaPlayer, CURRENT_PLAYING_URL, USERID, API_KEY, MCONTEXT);
-                        //mediaPlayer.setVideoPlayInfo(CURRENT_PLAYING_URL, USERID, API_KEY, MCONTEXT);
-                        //Log.d(TAG, "==========USERID="+USERID+"===API_KEY="+API_KEY+"===="+CURRENT_PLAYING_URL);
+                        if(isLocalPlay){
+                        		Method method = clazz.getDeclaredMethod("setDataSource", String.class);
+                        		method.invoke(mediaPlayer, CURRENT_PLAYING_URL);
+                        } else {
+                        	 	Method method = clazz.getDeclaredMethod("setVideoPlayInfo", String.class, String.class , String.class, Context.class);
+                        	 	method.invoke(mediaPlayer, CURRENT_PLAYING_URL, USERID, API_KEY, MCONTEXT);
+                        	 	mediaPlayer.setDefaultDefinition(defaultDefinition);
+                        }
+                        Log.d(TAG, "videoId-------"+CURRENT_PLAYING_URL);
                         mediaPlayer.setDefaultDefinition(DWMediaPlayer.NORMAL_DEFINITION);
                         mediaPlayer.setLooping(CURRENT_PLING_LOOP);
                         mediaPlayer.setOnPreparedListener(JCMediaManager.this);	
@@ -118,7 +122,7 @@ MediaPlayer.OnVideoSizeChangedListener {
                     }
                     break;
                 case HANDLER_RELEASE:
-                    mediaPlayer.release();
+                	  	mediaPlayer.release();
                     break;
             }
         }

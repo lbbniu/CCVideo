@@ -2,9 +2,11 @@ package cn.lbbniu.video.download;
 
 import java.util.Date;
 
+import android.util.Log;
+
 import com.bokecc.sdk.mobile.download.Downloader;
 
-public class DownloadInfo {
+public class DownloadInfo{
 	
 	private int id;
 	
@@ -18,10 +20,16 @@ public class DownloadInfo {
 	
 	private int status;
 	
+	private long downloadSize;
+	
+	private long fileSize;
+	
 	private Date createTime;
 	
 	private int definition;
 	
+	
+
 	public DownloadInfo(String videoId, String title, int progress, String progressText, int status, Date createTime) {
 		this.videoId = videoId;
 		this.title = title;
@@ -30,11 +38,15 @@ public class DownloadInfo {
 		this.status = status;
 		this.createTime = createTime;
 		this.definition = -1;
+		this.downloadSize = 0;
+		this.fileSize = 0;
 	}
 	
-	public DownloadInfo(String videoId, String title, int progress, String progressText, int status, Date createTime, int definition) {
+	public DownloadInfo(String videoId, String title, int progress,long downloadSize,long fileSize, String progressText, int status, Date createTime, int definition) {
 		this(videoId, title, progress, progressText, status, createTime);
 		this.definition = definition;
+		this.downloadSize = downloadSize;
+		this.fileSize = fileSize;
 	}
 	
 	public int getId() {
@@ -68,7 +80,26 @@ public class DownloadInfo {
 	public void setProgress(int progress) {
 		this.progress = progress;
 	}
+	
+	public long getDownloadSize() {
+		Log.d("DownloadInfo", "getDownloadSize======"+downloadSize);
+		return downloadSize;
+	}
 
+	public void setDownloadSize(long downloadSize) {
+		Log.d("DownloadInfo", "setDownloadSize======"+downloadSize);
+		this.downloadSize = downloadSize;
+	}
+
+	public long getFileSize() {
+		Log.d("DownloadInfo", "getFileSize======"+fileSize);
+		return fileSize;
+	}
+
+	public void setFileSize(long fileSize) {
+		Log.d("DownloadInfo", "setFileSize======"+fileSize);
+		this.fileSize = fileSize;
+	}
 	public int getStatus() {
 		return status;
 	}

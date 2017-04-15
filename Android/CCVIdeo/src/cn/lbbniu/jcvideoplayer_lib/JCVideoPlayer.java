@@ -63,7 +63,7 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
     public static final int SCREEN_WINDOW_FULLSCREEN = 2;
     public static final int SCREEN_WINDOW_TINY = 3;
 
-    public static final int CURRENT_STATE_NORMAL = 0;
+    public static final int CURRENT_STATE_NORMAL = 0;//首次进入
     public static final int CURRENT_STATE_PREPARING = 1;//首次加载中
     public static final int CURRENT_STATE_PLAYING = 2;//正在播放
     public static final int CURRENT_STATE_PLAYING_BUFFERING_START = 3;//缓冲中
@@ -741,7 +741,7 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
                 currentState == CURRENT_STATE_PAUSE ||
                 currentState == CURRENT_STATE_PLAYING_BUFFERING_START) {
             try {
-                position = JCMediaManager.instance().mediaPlayer.getCurrentPosition();
+            		position = JCMediaManager.instance().mediaPlayer.getCurrentPosition();
             } catch (IllegalStateException e) {
                 e.printStackTrace();
                 return position;
@@ -816,9 +816,13 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
                 (System.currentTimeMillis() - CLICK_QUIT_FULLSCREEN_TIME) > FULL_SCREEN_NORMAL_DELAY) {
             //在非全屏的情况下只能backPress()
             if (JCVideoPlayerManager.getSecondFloor() != null &&
-                    JCVideoPlayerManager.getSecondFloor().currentScreen == SCREEN_WINDOW_FULLSCREEN) {//点击全屏
+                    JCVideoPlayerManager.getSecondFloor().currentScreen == SCREEN_WINDOW_FULLSCREEN) {
+            		//点击全屏
+            	
             } else if (JCVideoPlayerManager.getSecondFloor() == null && JCVideoPlayerManager.getFirstFloor() != null &&
-                    JCVideoPlayerManager.getFirstFloor().currentScreen == SCREEN_WINDOW_FULLSCREEN) {//直接全屏
+                    JCVideoPlayerManager.getFirstFloor().currentScreen == SCREEN_WINDOW_FULLSCREEN) {
+            		//直接全屏
+            	
             } else {
                 Log.d(TAG, "release [" + this.hashCode() + "]");
                 releaseAllVideos();
@@ -841,6 +845,11 @@ public abstract class JCVideoPlayer extends FrameLayout implements View.OnClickL
     public static void releaseAllVideos() {
         if ((System.currentTimeMillis() - CLICK_QUIT_FULLSCREEN_TIME) > FULL_SCREEN_NORMAL_DELAY) {
             Log.d(TAG, "releaseAllVideos");
+            if(JCMediaManager.instance().mediaPlayer.isPlaying()){
+            		JCMediaManager.instance().mediaPlayer.pause();
+            }
+            JCMediaManager.instance().mediaPlayer.stop();
+            JCMediaManager.instance().mediaPlayer.reset();
             JCVideoPlayerManager.completeAll();
             JCMediaManager.instance().releaseMediaPlayer();
         }

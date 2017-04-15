@@ -129,21 +129,19 @@
 			}
 		}
 	    
-	    function openVideo(vid){
-	        param = {
+	    function openVideo(vid,isLocalPlay){
+	        var param = {
 	            title:"视频标题",
 	            videoId:vid,
-	            UserId:"CDE9DD8D9F25B1EF",
+	            userId:"CDE9DD8D9F25B1EF",
 	            apiKey:"x2vqfLcC3gTv69PaA0T5ZN6VdHw0sGI4",
-	            y:20,
-	            w:api.screenWidth,
-	            h:api.screenHeight,
 	            thumbImageUrl:"http://img4.jiecaojingxuan.com/2016/11/23/00b026e7-b830-4994-bc87-38f4033806a6.jpg@!640_360",
 	            autoPlay:true,
+	            isLocalPlay:isLocalPlay,
 	            fullscreen:true
 	        };
 	        video.open(param,function (ret, err){
-	        	//api.alert({msg:ret});
+	        		//api.alert({msg:ret});
 	        });
 	        video.seekTo({position:2000});
 	    }
@@ -151,18 +149,41 @@
 	        video.close();
 	    }
 	    function startVideo(){
-	    	video.start();
+	    		video.start();
 	    }
 	    function stopVideo(){
-	    	video.stop();
+	    		video.stop();
 	    }
 	    function getCurrentPositionVideo(){
-	    	video.getCurrentPosition(function(ret,err){
+	    		video.getCurrentPosition(function(ret,err){
 	    			api.alert({msg:ret});
-	    	});
+	    		});
 	    }
 	    function seekTo(){
-	    	video.seekTo({position:12000});
+	    		video.seekTo({position:12000});
+	    }
+	    function startDownloadSvr(){
+	    		video.startDownloadSvr(function(ret,err){
+	    			//api.alert({msg:ret});
+	    			api.toast({msg:JSON.stringify(ret)});
+	    			//api.alert({msg:err});
+	    		});
+	    }
+	    function stopDownloadSvr(){
+	    		video.stopDownloadSvr();
+	    }
+	    function addDownloadVideo(videoId){
+	    		video.addDownloadVideo({videoId:videoId});
+	    }
+	    function removeDownloadVideo(videoId){
+	    		video.removeDownloadVideo({videoId:videoId});
+	    }
+	    function downloadVideo(videoId){
+	    		video.downloadVideo({videoId:videoId});
+	    }
+	    function getVideoList(){
+	    		video.getDownloadingList(function(ret){api.alert({msg:ret});})
+	    		video.getDownloadedList(function(ret){api.alert({msg:ret});})
 	    }
 	</script>
 </head>
@@ -178,13 +199,25 @@
 				<div style="font-size:0.8em;">acticity返回值:</div>
 				<div id="activity_result" style="width:100%;word-wrap: break-word;word-break: normal;"></div><br><br>
 			<div class='itemtitle'>cc视频</div>
-				<div class="clickbtn" tapmode="active" onclick="openVideo('FD06098BB3DF4E2A9C33DC5901307461')" >打开视频1</div>     
-				<div class="clickbtn" tapmode="active" onclick="openVideo('AEAA2DF5A7BDDB379C33DC5901307461')" >打开视频2</div>     
+				<div class="clickbtn" tapmode="active" onclick="startDownloadSvr()" >开启视频下载服务</div>     
+				<div class="clickbtn" tapmode="active" onclick="stopDownloadSvr()" >停止视频下载服务</div>     
+				<div class="clickbtn" tapmode="active" onclick="addDownloadVideo('FD06098BB3DF4E2A9C33DC5901307461')" >添加视频下载1</div>     
+				<div class="clickbtn" tapmode="active" onclick="addDownloadVideo('AEAA2DF5A7BDDB379C33DC5901307461')" >添加视频下载2</div>     
+				<div class="clickbtn" tapmode="active" onclick="removeDownloadVideo('FD06098BB3DF4E2A9C33DC5901307461')" >删除视频下载1</div>     
+				<div class="clickbtn" tapmode="active" onclick="removeDownloadVideo('AEAA2DF5A7BDDB379C33DC5901307461')" >删除视频下载2</div>     
+				<div class="clickbtn" tapmode="active" onclick="downloadVideo('FD06098BB3DF4E2A9C33DC5901307461')" >点击下载列表1</div>     
+				<div class="clickbtn" tapmode="active" onclick="downloadVideo('AEAA2DF5A7BDDB379C33DC5901307461')" >点击下载列表2</div>     
+				<div class="clickbtn" tapmode="active" onclick="getVideoList()" >获取列表</div><br> 
+				
+				---------------------<br> 
+				<div class="clickbtn" tapmode="active" onclick="openVideo('FD06098BB3DF4E2A9C33DC5901307461',false)" >打开视频1</div>     
+				<div class="clickbtn" tapmode="active" onclick="openVideo('AEAA2DF5A7BDDB379C33DC5901307461',true)" >打开视频2</div>     
 				<div class="clickbtn" tapmode="active" onclick="closeVideo()" >关闭视频</div>     
 				<div class="clickbtn" tapmode="active" onclick="startVideo()" >开始播放</div>     
 				<div class="clickbtn" tapmode="active" onclick="stopVideo()" >暂停播放</div>     
 				<div class="clickbtn" tapmode="active" onclick="getCurrentPositionVideo()" >获取播放进度</div> 
 				<div class="clickbtn" tapmode="active" onclick="seekTo()" >3000毫秒</div>     
+				
 			<div class='itemtitle'>3、调用设备震动</div>
 				<lable>设置震动时间，单位：毫秒</lable><br>
 				<input type="number" id="vibrate" value="20000" />
