@@ -1,0 +1,8 @@
+[
+ {
+ "name":"ccVideo",
+ "class":"LBModuleCCVideo",
+ "methods":["open","stop","start","close","download","downloadStart","downloadStop","removeDownloadVideo"],
+ "launchClassMethod":"launch"
+ }
+]
