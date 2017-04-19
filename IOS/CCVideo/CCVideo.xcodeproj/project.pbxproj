@@ -20,7 +20,7 @@
 		01D3D3BF1EA5C72A007E1AB6 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3B71EA5C72A007E1AB6 /* FMDatabasePool.m */; };
 		01D3D3C01EA5C72A007E1AB6 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3B91EA5C72A007E1AB6 /* FMDatabaseQueue.m */; };
 		01D3D3C11EA5C72A007E1AB6 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3BC1EA5C72A007E1AB6 /* FMResultSet.m */; };
-		01D3D3C71EA63764007E1AB6 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3C51EA63764007E1AB6 /* Reachability.m */; };
+		01D3D3CA1EA76AB9007E1AB6 /* LBModuleCCVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3C91EA76AB9007E1AB6 /* LBModuleCCVideo.m */; };
 		01D402B61CCE027F00ACBE25 /* libCCSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D402B51CCE027F00ACBE25 /* libCCSDK.a */; };
 		527BCF7119C431480077631F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 527BCF7019C431480077631F /* main.m */; };
 		527BCF7419C431480077631F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 527BCF7319C431480077631F /* AppDelegate.m */; };
@@ -58,7 +58,6 @@
 		52E21F2119C947A700A84D54 /* libUZEngine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E21F2019C947A700A84D54 /* libUZEngine.a */; };
 		52F1035C19F0EA6200DFDF13 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 52F1035B19F0EA6200DFDF13 /* libbz2.dylib */; };
 		52F1035E19F0EA6700DFDF13 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 52F1035D19F0EA6700DFDF13 /* libxml2.dylib */; };
-		AB0D265F1CD9B83500D8E5C3 /* LBModuleCCVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = AB0D265E1CD9B83500D8E5C3 /* LBModuleCCVideo.m */; };
 		AB61DD981CD9ECA50031480C /* DWDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = AB61DD971CD9ECA50031480C /* DWDownloadItem.m */; };
 /* End PBXBuildFile section */
 
@@ -89,8 +88,7 @@
 		01D3D3BA1EA5C72A007E1AB6 /* FMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDB.h; sourceTree = "<group>"; };
 		01D3D3BB1EA5C72A007E1AB6 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
 		01D3D3BC1EA5C72A007E1AB6 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
-		01D3D3C41EA63764007E1AB6 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
-		01D3D3C51EA63764007E1AB6 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		01D3D3C91EA76AB9007E1AB6 /* LBModuleCCVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LBModuleCCVideo.m; sourceTree = "<group>"; };
 		01D402AF1CCE027F00ACBE25 /* DWDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWDownloader.h; sourceTree = "<group>"; };
 		01D402B01CCE027F00ACBE25 /* DWLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWLog.h; sourceTree = "<group>"; };
 		01D402B11CCE027F00ACBE25 /* DWMoviePlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWMoviePlayerController.h; sourceTree = "<group>"; };
@@ -143,7 +141,6 @@
 		52F1035D19F0EA6700DFDF13 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		887AB1901D504D73008A1895 /* DWDrmServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWDrmServer.h; sourceTree = "<group>"; };
 		AB0D265D1CD9B83500D8E5C3 /* LBModuleCCVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LBModuleCCVideo.h; sourceTree = "<group>"; };
-		AB0D265E1CD9B83500D8E5C3 /* LBModuleCCVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LBModuleCCVideo.m; sourceTree = "<group>"; };
 		AB61DD961CD9ECA50031480C /* DWDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWDownloadItem.h; sourceTree = "<group>"; };
 		AB61DD971CD9ECA50031480C /* DWDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DWDownloadItem.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -248,8 +245,6 @@
 		527BCF6D19C431480077631F /* UZApp */ = {
 			isa = PBXGroup;
 			children = (
-				01D3D3C41EA63764007E1AB6 /* Reachability.h */,
-				01D3D3C51EA63764007E1AB6 /* Reachability.m */,
 				015CC4551BEB046C002A6ED2 /* DWMediaSubtitle.h */,
 				015CC4561BEB046C002A6ED2 /* DWMediaSubtitle.m */,
 				015CC4571BEB046C002A6ED2 /* DWPlayerMenuView.h */,
@@ -301,7 +296,7 @@
 				01D3D3AA1EA4C8B3007E1AB6 /* ZXVideoPlayerVolumeView.h */,
 				01D3D3AB1EA4C8B3007E1AB6 /* ZXVideoPlayerVolumeView.m */,
 				AB0D265D1CD9B83500D8E5C3 /* LBModuleCCVideo.h */,
-				AB0D265E1CD9B83500D8E5C3 /* LBModuleCCVideo.m */,
+				01D3D3C91EA76AB9007E1AB6 /* LBModuleCCVideo.m */,
 				015CC55B1BEB08CD002A6ED2 /* res_lbbVideo */,
 			);
 			path = UZModules;
@@ -427,12 +422,11 @@
 				AB61DD981CD9ECA50031480C /* DWDownloadItem.m in Sources */,
 				015CC45E1BEB046C002A6ED2 /* DWPlayerMenuView.m in Sources */,
 				01D3D3BE1EA5C72A007E1AB6 /* FMDatabaseAdditions.m in Sources */,
-				AB0D265F1CD9B83500D8E5C3 /* LBModuleCCVideo.m in Sources */,
 				527BCF7119C431480077631F /* main.m in Sources */,
 				01D3D3BF1EA5C72A007E1AB6 /* FMDatabasePool.m in Sources */,
+				01D3D3CA1EA76AB9007E1AB6 /* LBModuleCCVideo.m in Sources */,
 				01D3D3AC1EA4C8B3007E1AB6 /* ZXVideoPlayerBrightnessView.m in Sources */,
 				015CC45D1BEB046C002A6ED2 /* DWMediaSubtitle.m in Sources */,
-				01D3D3C71EA63764007E1AB6 /* Reachability.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -19,7 +19,6 @@
 #import "DWTableView.h"
 #import "DWTools.h"
 #import "DWMediaSubtitle.h"
-#import "Reachability.h"
 
 #define logerror(format, ...) NSLog(@"%s():%d ERROR============ "format, __func__, __LINE__, ##__VA_ARGS__)
 #define logdebug(format, ...) NSLog(@"%s():%d DEBUG------------ "format, __func__, __LINE__, ##__VA_ARGS__)
@@ -106,8 +105,6 @@ typedef NSInteger DWPLayerScreenSizeMode;
 @property (strong, nonatomic)UIButton *switchScrBtn;
 @property (assign, nonatomic)BOOL isFullscreen;
 
-@property (nonatomic) Reachability *internetReachability;
-
 @end
 
 @implementation LBModuleCCVideo
@@ -143,7 +140,6 @@ static NSMutableArray *array;
 }
 
 - (void)open:(NSDictionary *)paramDict{
-     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkStateChange) name:kReachabilityChangedNotification object:nil];
     
    
     NSLog(@"-----diccc----=%@",paramDict);
@@ -1018,41 +1014,6 @@ static NSMutableArray *array;
     if (bRet) {
         
         [fileMgr removeItemAtPath:videoPath error:&err];
-    }
-}
-
-//===================不公开的方法定义================
-# pragma mark 处理网络状态改变
-
-- (void)networkStateChange
-{
-    NetworkStatus status = [_internetReachability currentReachabilityStatus];
-    switch (status) {
-        case NotReachable:
-            NSLog(@"没有网络");
-            //[self loadTipLabelview];
-            self.tipLabel.text = @"当前无任何网络";
-            //self.tipHiddenSeconds = 2;
-            break;
-            
-        case ReachableViaWiFi:
-            NSLog(@"Wi-Fi");
-            //[self loadTipLabelview];
-            self.tipLabel.text = @"切换到wi-fi网络";
-            //self.tipHiddenSeconds = 2;
-            break;
-            
-        case ReachableViaWWAN:
-            NSLog(@"运营商网络");
-        {
-            [self.player pause];
-            //self.alert = [[UIAlertView alloc]initWithTitle:@"当前为移动网络，是否继续播放？" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
-            //[self.alert show];
-        }
-            break;
-            
-        default:
-            break;
     }
 }
 
