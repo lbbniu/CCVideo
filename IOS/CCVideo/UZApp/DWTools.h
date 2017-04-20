@@ -9,7 +9,7 @@
 + (BOOL)saveVideoThumbnailWithVideoPath:(NSString *)vieoPath toFile:(NSString *)ThumbnailPath Error:(NSError **)error;
 
 + (NSString *)formatSecondsToString:(NSInteger)seconds;
-
++ (UIImage *)imageCompressForSize:(UIImage *)sourceImage targetSize:(CGSize)size;
 //数据库
 
 

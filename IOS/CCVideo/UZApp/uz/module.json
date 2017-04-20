@@ -1,7 +1,13 @@
 [
  {
- "name":"ccVideo",
+ "name":"lbbVideo",
  "class":"LBModuleCCVideo",
+ "methods":["open","stop","start","close","download","downloadStart","downloadStop","removeDownloadVideo"],
+ "launchClassMethod":"launch"
+ }
+ {
+ "name":"ccVideo",
+ "class":"LbbCCVideo",
  "methods":["open","stop","start","close","download","downloadStart","downloadStop","removeDownloadVideo"],
  "launchClassMethod":"launch"
  }

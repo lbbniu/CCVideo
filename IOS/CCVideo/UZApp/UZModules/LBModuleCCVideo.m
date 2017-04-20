@@ -62,7 +62,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
 @property (strong, nonatomic)UIButton *backButton;
 
 @property (strong, nonatomic)UIActivityIndicatorView *activityView;//菊花
-@property (strong, nonatomic)UILabel *movieSubtitleLabel;
+//@property (strong, nonatomic)UILabel *movieSubtitleLabel;
 @property (strong, nonatomic)DWMediaSubtitle *mediaSubtitle;
 
 @property (strong, nonatomic)UIButton *playbackButton;

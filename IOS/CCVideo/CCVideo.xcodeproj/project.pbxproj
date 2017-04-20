@@ -21,6 +21,10 @@
 		01D3D3C01EA5C72A007E1AB6 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3B91EA5C72A007E1AB6 /* FMDatabaseQueue.m */; };
 		01D3D3C11EA5C72A007E1AB6 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3BC1EA5C72A007E1AB6 /* FMResultSet.m */; };
 		01D3D3CA1EA76AB9007E1AB6 /* LBModuleCCVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3C91EA76AB9007E1AB6 /* LBModuleCCVideo.m */; };
+		01D3D3CE1EA865DC007E1AB6 /* LbbCCVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3CD1EA865DC007E1AB6 /* LbbCCVideo.m */; };
+		01D3D3D21EA86B53007E1AB6 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3D11EA86B53007E1AB6 /* Reachability.m */; };
+		01D3D3D51EA86C12007E1AB6 /* DWGestureButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3D41EA86C12007E1AB6 /* DWGestureButton.m */; };
+		01D3D4031EA8CCBD007E1AB6 /* res_ccVideo in Resources */ = {isa = PBXBuildFile; fileRef = 01D3D4021EA8CCBD007E1AB6 /* res_ccVideo */; };
 		01D402B61CCE027F00ACBE25 /* libCCSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01D402B51CCE027F00ACBE25 /* libCCSDK.a */; };
 		527BCF7119C431480077631F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 527BCF7019C431480077631F /* main.m */; };
 		527BCF7419C431480077631F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 527BCF7319C431480077631F /* AppDelegate.m */; };
@@ -62,14 +66,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		015CC4551BEB046C002A6ED2 /* DWMediaSubtitle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWMediaSubtitle.h; sourceTree = "<group>"; };
-		015CC4561BEB046C002A6ED2 /* DWMediaSubtitle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DWMediaSubtitle.m; sourceTree = "<group>"; };
-		015CC4571BEB046C002A6ED2 /* DWPlayerMenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWPlayerMenuView.h; sourceTree = "<group>"; };
-		015CC4581BEB046C002A6ED2 /* DWPlayerMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DWPlayerMenuView.m; sourceTree = "<group>"; };
-		015CC4591BEB046C002A6ED2 /* DWTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWTableView.h; sourceTree = "<group>"; };
-		015CC45A1BEB046C002A6ED2 /* DWTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DWTableView.m; sourceTree = "<group>"; };
-		015CC45B1BEB046C002A6ED2 /* DWTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWTools.h; sourceTree = "<group>"; };
-		015CC45C1BEB046C002A6ED2 /* DWTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DWTools.m; sourceTree = "<group>"; };
+		015CC4551BEB046C002A6ED2 /* DWMediaSubtitle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWMediaSubtitle.h; path = ../UZApp/DWMediaSubtitle.h; sourceTree = "<group>"; };
+		015CC4561BEB046C002A6ED2 /* DWMediaSubtitle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWMediaSubtitle.m; path = ../UZApp/DWMediaSubtitle.m; sourceTree = "<group>"; };
+		015CC4571BEB046C002A6ED2 /* DWPlayerMenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWPlayerMenuView.h; path = ../UZApp/DWPlayerMenuView.h; sourceTree = "<group>"; };
+		015CC4581BEB046C002A6ED2 /* DWPlayerMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWPlayerMenuView.m; path = ../UZApp/DWPlayerMenuView.m; sourceTree = "<group>"; };
+		015CC4591BEB046C002A6ED2 /* DWTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWTableView.h; path = ../UZApp/DWTableView.h; sourceTree = "<group>"; };
+		015CC45A1BEB046C002A6ED2 /* DWTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWTableView.m; path = ../UZApp/DWTableView.m; sourceTree = "<group>"; };
+		015CC45B1BEB046C002A6ED2 /* DWTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWTools.h; path = ../UZApp/DWTools.h; sourceTree = "<group>"; };
+		015CC45C1BEB046C002A6ED2 /* DWTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWTools.m; path = ../UZApp/DWTools.m; sourceTree = "<group>"; };
 		015CC55B1BEB08CD002A6ED2 /* res_lbbVideo */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res_lbbVideo; sourceTree = "<group>"; };
 		01D3D3A61EA4C8B3007E1AB6 /* ZXVideoPlayerBrightnessView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZXVideoPlayerBrightnessView.h; sourceTree = "<group>"; };
 		01D3D3A71EA4C8B3007E1AB6 /* ZXVideoPlayerBrightnessView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZXVideoPlayerBrightnessView.m; sourceTree = "<group>"; };
@@ -89,6 +93,13 @@
 		01D3D3BB1EA5C72A007E1AB6 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
 		01D3D3BC1EA5C72A007E1AB6 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
 		01D3D3C91EA76AB9007E1AB6 /* LBModuleCCVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LBModuleCCVideo.m; sourceTree = "<group>"; };
+		01D3D3CD1EA865DC007E1AB6 /* LbbCCVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LbbCCVideo.m; sourceTree = "<group>"; };
+		01D3D3CF1EA865EF007E1AB6 /* LbbCCVideo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LbbCCVideo.h; sourceTree = "<group>"; };
+		01D3D3D01EA86B53007E1AB6 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		01D3D3D11EA86B53007E1AB6 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		01D3D3D31EA86C12007E1AB6 /* DWGestureButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWGestureButton.h; sourceTree = "<group>"; };
+		01D3D3D41EA86C12007E1AB6 /* DWGestureButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DWGestureButton.m; sourceTree = "<group>"; };
+		01D3D4021EA8CCBD007E1AB6 /* res_ccVideo */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res_ccVideo; sourceTree = "<group>"; };
 		01D402AF1CCE027F00ACBE25 /* DWDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWDownloader.h; sourceTree = "<group>"; };
 		01D402B01CCE027F00ACBE25 /* DWLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWLog.h; sourceTree = "<group>"; };
 		01D402B11CCE027F00ACBE25 /* DWMoviePlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DWMoviePlayerController.h; sourceTree = "<group>"; };
@@ -209,6 +220,18 @@
 		01D402AE1CCE027F00ACBE25 /* SDK */ = {
 			isa = PBXGroup;
 			children = (
+				015CC4551BEB046C002A6ED2 /* DWMediaSubtitle.h */,
+				015CC4561BEB046C002A6ED2 /* DWMediaSubtitle.m */,
+				015CC4571BEB046C002A6ED2 /* DWPlayerMenuView.h */,
+				015CC4591BEB046C002A6ED2 /* DWTableView.h */,
+				015CC45A1BEB046C002A6ED2 /* DWTableView.m */,
+				015CC4581BEB046C002A6ED2 /* DWPlayerMenuView.m */,
+				015CC45B1BEB046C002A6ED2 /* DWTools.h */,
+				015CC45C1BEB046C002A6ED2 /* DWTools.m */,
+				01D3D3D31EA86C12007E1AB6 /* DWGestureButton.h */,
+				01D3D3D41EA86C12007E1AB6 /* DWGestureButton.m */,
+				01D3D3D01EA86B53007E1AB6 /* Reachability.h */,
+				01D3D3D11EA86B53007E1AB6 /* Reachability.m */,
 				887AB1901D504D73008A1895 /* DWDrmServer.h */,
 				AB61DD961CD9ECA50031480C /* DWDownloadItem.h */,
 				AB61DD971CD9ECA50031480C /* DWDownloadItem.m */,
@@ -245,14 +268,6 @@
 		527BCF6D19C431480077631F /* UZApp */ = {
 			isa = PBXGroup;
 			children = (
-				015CC4551BEB046C002A6ED2 /* DWMediaSubtitle.h */,
-				015CC4561BEB046C002A6ED2 /* DWMediaSubtitle.m */,
-				015CC4571BEB046C002A6ED2 /* DWPlayerMenuView.h */,
-				015CC4591BEB046C002A6ED2 /* DWTableView.h */,
-				015CC45A1BEB046C002A6ED2 /* DWTableView.m */,
-				015CC4581BEB046C002A6ED2 /* DWPlayerMenuView.m */,
-				015CC45B1BEB046C002A6ED2 /* DWTools.h */,
-				015CC45C1BEB046C002A6ED2 /* DWTools.m */,
 				527BCF9619C4339B0077631F /* UZEngine */,
 				527BCF9B19C4339B0077631F /* UZModules */,
 				527BCF7219C431480077631F /* AppDelegate.h */,
@@ -297,6 +312,9 @@
 				01D3D3AB1EA4C8B3007E1AB6 /* ZXVideoPlayerVolumeView.m */,
 				AB0D265D1CD9B83500D8E5C3 /* LBModuleCCVideo.h */,
 				01D3D3C91EA76AB9007E1AB6 /* LBModuleCCVideo.m */,
+				01D3D3CF1EA865EF007E1AB6 /* LbbCCVideo.h */,
+				01D3D3CD1EA865DC007E1AB6 /* LbbCCVideo.m */,
+				01D3D4021EA8CCBD007E1AB6 /* res_ccVideo */,
 				015CC55B1BEB08CD002A6ED2 /* res_lbbVideo */,
 			);
 			path = UZModules;
@@ -397,6 +415,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01D3D4031EA8CCBD007E1AB6 /* res_ccVideo in Resources */,
 				015CC55C1BEB08CD002A6ED2 /* res_lbbVideo in Resources */,
 				527BCFF519C4346B0077631F /* uz in Resources */,
 				527BCFF619C4346B0077631F /* widget in Resources */,
@@ -417,15 +436,18 @@
 				01D3D3BD1EA5C72A007E1AB6 /* FMDatabase.m in Sources */,
 				01D3D3AD1EA4C8B3007E1AB6 /* ZXVideoPlayerTimeIndicatorView.m in Sources */,
 				01D3D3C01EA5C72A007E1AB6 /* FMDatabaseQueue.m in Sources */,
+				01D3D3CE1EA865DC007E1AB6 /* LbbCCVideo.m in Sources */,
 				01D3D3C11EA5C72A007E1AB6 /* FMResultSet.m in Sources */,
 				527BCF7419C431480077631F /* AppDelegate.m in Sources */,
 				AB61DD981CD9ECA50031480C /* DWDownloadItem.m in Sources */,
 				015CC45E1BEB046C002A6ED2 /* DWPlayerMenuView.m in Sources */,
 				01D3D3BE1EA5C72A007E1AB6 /* FMDatabaseAdditions.m in Sources */,
 				527BCF7119C431480077631F /* main.m in Sources */,
+				01D3D3D51EA86C12007E1AB6 /* DWGestureButton.m in Sources */,
 				01D3D3BF1EA5C72A007E1AB6 /* FMDatabasePool.m in Sources */,
 				01D3D3CA1EA76AB9007E1AB6 /* LBModuleCCVideo.m in Sources */,
 				01D3D3AC1EA4C8B3007E1AB6 /* ZXVideoPlayerBrightnessView.m in Sources */,
+				01D3D3D21EA86B53007E1AB6 /* Reachability.m in Sources */,
 				015CC45D1BEB046C002A6ED2 /* DWMediaSubtitle.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
