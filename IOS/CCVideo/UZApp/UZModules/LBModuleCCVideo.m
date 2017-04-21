@@ -18,7 +18,6 @@
 #import "DWPlayerMenuView.h"
 #import "DWTableView.h"
 #import "DWTools.h"
-#import "DWMediaSubtitle.h"
 
 #define logerror(format, ...) NSLog(@"%s():%d ERROR============ "format, __func__, __LINE__, ##__VA_ARGS__)
 #define logdebug(format, ...) NSLog(@"%s():%d DEBUG------------ "format, __func__, __LINE__, ##__VA_ARGS__)
@@ -63,7 +62,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
 
 @property (strong, nonatomic)UIActivityIndicatorView *activityView;//菊花
 //@property (strong, nonatomic)UILabel *movieSubtitleLabel;
-@property (strong, nonatomic)DWMediaSubtitle *mediaSubtitle;
+//@property (strong, nonatomic)DWMediaSubtitle *mediaSubtitle;
 
 @property (strong, nonatomic)UIButton *playbackButton;
 @property (strong, nonatomic)UIButton *playjiangyiButton;
