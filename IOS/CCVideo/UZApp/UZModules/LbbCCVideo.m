@@ -240,6 +240,32 @@ typedef NSInteger DWPLayerScreenSizeMode;
 //    [super viewWillAppear:animated];
 //    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForegroundNotification) name:UIApplicationWillEnterForegroundNotification object:nil];
 //}
+//生命周期函数
+- (void)appWillEnterForegroundNotification{
+    if (self.player.playbackState == MPMoviePlaybackStatePaused) {
+        [self.player play];
+    }
+}
+//生命周期函数
+- (void)viewWillDisappear:(BOOL)animated
+{
+    //logdebug(@"stop movie");
+    [self.player cancelRequestPlayInfo];
+    [self saveNsUserDefaults];
+    self.player.currentPlaybackTime = self.player.duration;
+    [self.player stop];
+    self.secondsCountDown = -1;
+    self.player.contentURL = nil;
+    self.player = nil;
+    [self removeAllObserver];
+    [self removeTimer];
+    
+    // 显示 状态栏
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    
+    // 显示 navigationController
+    [self.viewController.navigationController setNavigationBarHidden:NO animated:YES];
+}
 
 #pragma mark--------创建快进，快退view----------
 - (ZXVideoPlayerTimeIndicatorView *)timeIndicatorView
@@ -447,32 +473,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
 }
 
 
-//生命周期函数
-- (void)appWillEnterForegroundNotification{
-    if (self.player.playbackState == MPMoviePlaybackStatePaused) {
-        [self.player play];
-    }
-}
-//生命周期函数
-- (void)viewWillDisappear:(BOOL)animated
-{
-    //logdebug(@"stop movie");
-    [self.player cancelRequestPlayInfo];
-    [self saveNsUserDefaults];
-    self.player.currentPlaybackTime = self.player.duration;
-    [self.player stop];
-    self.secondsCountDown = -1;
-    self.player.contentURL = nil;
-    self.player = nil;
-    [self removeAllObserver];
-    [self removeTimer];
-    
-    // 显示 状态栏
-    [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    
-    // 显示 navigationController
-    [self.viewController.navigationController setNavigationBarHidden:NO animated:YES];
-}
+
 
 # pragma mark 处理网络状态改变
 
@@ -1167,8 +1168,10 @@ typedef NSInteger DWPLayerScreenSizeMode;
     self.hiddenAll = NO;
     if (!self.isFullscreen) {
         self.lockButton.hidden = YES;
+        self.headerView.hidden = YES;
         self.backButton.hidden = YES;
     }
+    
     if (self.videoLocalPath) {
 
     }
