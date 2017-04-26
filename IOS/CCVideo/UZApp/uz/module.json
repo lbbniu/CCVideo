@@ -8,7 +8,7 @@
  {
  "name":"ccVideo",
  "class":"LbbCCVideo",
- "methods":["open","stop","start","close","download","downloadStart","downloadStop","removeDownloadVideo"],
+ "methods":["open","stop","start","close","seekTo","getCurrentPosition","startDownloadSvr","stopDownloadSvr","addDownloadVideo","removeDownloadVideo","downloadVideo","getDownloadingList","getDownloadedList"],
  "launchClassMethod":"launch"
  }
 ]

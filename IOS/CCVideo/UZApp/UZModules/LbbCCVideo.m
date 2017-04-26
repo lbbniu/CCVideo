@@ -133,6 +133,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
     
     userId = [paramDict stringValueForKey:@"userId" defaultValue:nil];
     apiKey = [paramDict stringValueForKey:@"apiKey" defaultValue:nil];
+    if(self.player != nil){
+        [self closeVideo];
+    }
     self.player = [[DWMoviePlayerController alloc] initWithUserId:userId key:apiKey];
     self.player.currentPlaybackRate = 1;
     [self addObserverForMPMoviePlayController];
@@ -230,6 +233,102 @@ typedef NSInteger DWPLayerScreenSizeMode;
     // 10 秒后隐藏所有窗口·
     self.hiddenDelaySeconds = 10;
 }
+- (void)closeVideo {
+    [self.player cancelRequestPlayInfo];
+    [self saveNsUserDefaults];
+    self.player.currentPlaybackTime = self.player.duration;
+    [self.player stop];
+    self.secondsCountDown = -1;
+    self.player.contentURL = nil;
+    self.player = nil;
+    [self removeAllObserver];
+    [self removeTimer];
+    // 显示 状态栏  quanping
+    [[UIApplication sharedApplication] setStatusBarHidden:NO];
+    
+    [self.videoBackgroundView removeFromSuperview];
+    [self.overlayView removeFromSuperview];
+}
+//关闭播放器
+- (void)close:(NSDictionary *)paramDict{
+    [self closeVideo];
+    //[self.navigationController popViewControllerAnimated:YES];
+}
+
+//开始播放
+- (void)start:(NSDictionary *)paramDict{
+    
+    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    self.hiddenDelaySeconds = 10;
+    
+    if (!self.playUrls || self.playUrls.count == 0) {
+        [self loadPlayUrls];
+        return;
+    }
+    
+    UIImage *image = nil;
+    if (self.player.playbackState != MPMoviePlaybackStatePlaying) {
+        // 继续播放
+        // 继续播放
+        self.pausebuttonClick = NO;
+        self.BigPauseButton.hidden = YES;
+        image = [UIImage imageNamed:@"res_ccVideo/player-pausebutton"];
+        [self.player play];
+        [self.materialView setHidden:YES];
+        [self.playbackButton setImage:image forState:UIControlStateNormal];
+    }
+    if (cbId >= 0) {
+        
+        NSDictionary *ret = @{@"btnType":@"start",@"ctime":[NSString stringWithFormat:@"%f",self.player.currentPlaybackTime*1000]};
+        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+    }
+}
+
+//暂停播放
+- (void)stop:(NSDictionary *)paramDict{
+    
+    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    self.hiddenDelaySeconds = 10;
+    
+    if (!self.playUrls || self.playUrls.count == 0) {
+        [self loadPlayUrls];
+        return;
+    }
+    UIImage *image = nil;
+    if (self.player.playbackState == MPMoviePlaybackStatePlaying) {
+        // 暂停播放
+        self.pausebuttonClick = YES;
+        image = [UIImage imageNamed:@"res_ccVideo/player-playbutton"];
+        [self.player pause];
+        [self loadBigPauseButton];
+        [self.playbackButton setImage:image forState:UIControlStateNormal];
+    }
+    if (cbId >= 0) {
+        NSDictionary *ret = @{@"btnType":@"stop",@"ctime":[NSString stringWithFormat:@"%f",self.player.currentPlaybackTime*1000]};
+        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+    }
+}
+//跳到指定位置播放
+- (void)seekTo:(NSDictionary *)paramDict{
+
+    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    NSInteger  position = [paramDict integerValueForKey:@"position" defaultValue:0];
+    if(position >= 0 && position/1000 <= self.player.duration){
+        self.player.currentPlaybackTime = position/1000;
+        self.currentPlaybackTimeLabel.text = [DWTools formatSecondsToString:self.player.currentPlaybackTime];
+        self.durationLabel.text = [DWTools formatSecondsToString:self.player.duration];
+        self.durationSlider.value = self.player.currentPlaybackTime;
+        self.historyPlaybackTime = self.player.currentPlaybackTime;
+    }
+    if (cbId >= 0){
+        NSDictionary *ret = @{@"status":@"100",@"ctime":[NSString stringWithFormat:@"%ld",position]};
+        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+    }
+}
+- (void)getCurrentPosition:(NSDictionary *)paramDict{
+
+}
+
 //lbbniu
 //- (void)didReceiveMemoryWarning
 //{
@@ -643,18 +742,11 @@ typedef NSInteger DWPLayerScreenSizeMode;
 -(void)loadSwitchScrBtn
 {
     CGRect frame;
-    if (_isFullscreen == NO) {
-        frame.origin.x = self.footerView.frame.size.width - 35;
-        frame.origin.y = self.footerView.frame.origin.y;
-        frame.size.width = 38;
-        frame.size.height = 38;
-    }
-    else{
-        frame.origin.x = self.footerView.frame.size.width - 35;
-        frame.origin.y = self.footerView.frame.origin.y;
-        frame.size.width = 40;
-        frame.size.height = 40;
-    }
+    
+    frame.origin.x = self.footerView.frame.size.width - 40;
+    frame.origin.y = self.footerView.frame.origin.y;
+    frame.size.width = 38;
+    frame.size.height = 38;
     
     
     self.switchScrBtn.frame = frame;
@@ -773,7 +865,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
     
     
     self.headerView.frame = CGRectMake(0, 0, self.overlayView.frame.size.width, 38);
-    self.footerView.frame = CGRectMake(0, self.overlayView.frame.size.height - 60, self.overlayView.frame.size.width, 60);
+    //self.footerView.frame = CGRectMake(0, self.overlayView.frame.size.height - 60, self.overlayView.frame.size.width, 60);
+    self.footerView.frame = CGRectMake(0, self.overlayView.frame.size.height - 38, self.overlayView.frame.size.width, 38);
     self.switchScrBtn.selected = YES;
     [self headerViewframe];
     [self footerViewframe];
@@ -857,22 +950,11 @@ typedef NSInteger DWPLayerScreenSizeMode;
 - (void)loadPlaybackButton
 {
     CGRect frame = CGRectZero;
-    if (self.isFullscreen == NO) {
-        frame.origin.x = self.footerView.frame.origin.x + 5;
-        frame.origin.y = self.footerView.frame.origin.y + self.footerView.frame.size.height / 2 - 15;
-    }else{
-        frame.origin.x = self.footerView.frame.size.width/4 - 15;
-        frame.origin.y = self.footerView.frame.origin.y + (self.footerView.frame.size.height/4)*3 - 15;
-        if (self.videoLocalPath) {
-            frame.origin.x = self.footerView.frame.size.width/10;
-            frame.origin.y = self.footerView.frame.origin.y + (self.footerView.frame.size.height/4)*3 - 15;
-        }
-    }
-    
+    frame.origin.x = self.footerView.frame.origin.x + 5;
+    frame.origin.y = self.footerView.frame.origin.y + self.footerView.frame.size.height / 2 - 15;
     frame.size.width = 30;
     frame.size.height = 30;
     self.playbackButton.frame = frame;
-    
     [self.playbackButton setImage:[UIImage imageNamed:@"res_ccVideo/player-pausebutton"] forState:UIControlStateNormal];
     [self.playbackButton addTarget:self action:@selector(playbackButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     [self.overlayView addSubview:self.playbackButton];
@@ -932,14 +1014,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
 - (void)loadCurrentPlaybackTimeLabel
 {//视频当前播放时间
     CGRect frame = CGRectZero;
-    if (self.isFullscreen == NO) {
-        frame.origin.x = self.playbackButton.frame.origin.x + self.playbackButton.frame.size.width + 5;
-        frame.origin.y = self.playbackButton.frame.origin.y + 5;
-    }
-    else{
-        frame.origin.x = 10;
-        frame.origin.y = self.footerView.frame.origin.y + 9;
-    }
+    
+    frame.origin.x = self.playbackButton.frame.origin.x + self.playbackButton.frame.size.width + 5;
+    frame.origin.y = self.playbackButton.frame.origin.y + 5;
     frame.size.width = 40;
     frame.size.height = 20;
     
@@ -954,15 +1031,10 @@ typedef NSInteger DWPLayerScreenSizeMode;
 
 # pragma mark 视频总时间
 - (void)loadDurationLabel
-{//视频总时间label
+{   //视频总时间label
     CGRect frame = CGRectZero;
-    if (self.isFullscreen == NO) {
-        frame.origin.x = self.durationSlider.frame.origin.x + self.durationSlider.frame.size.width + 5;
-        frame.origin.y = self.playbackButton.frame.origin.y + 5;
-    }else{
-        frame.origin.x = self.footerView.frame.size.width - 50 - 40;
-        frame.origin.y = self.footerView.frame.origin.y + 9;
-    }
+    frame.origin.x = self.durationSlider.frame.origin.x + self.durationSlider.frame.size.width + 5;
+    frame.origin.y = self.playbackButton.frame.origin.y + 5;
     frame.size.width = 40;
     frame.size.height = 20;
     
@@ -979,13 +1051,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
 - (void)loadPlaybackSlider
 {
     CGRect frame = CGRectZero;
-    if (self.isFullscreen == NO) {
-        frame.origin.x = self.currentPlaybackTimeLabel.frame.origin.x + self.currentPlaybackTimeLabel.frame.size.width ;
-        frame.origin.y = self.playbackButton.frame.origin.y;
-    }else{
-        frame.origin.x = self.footerView.frame.origin.x + 10 + 10 + 40;
-        frame.origin.y = self.footerView.frame.origin.y + 4;
-    }
+    frame.origin.x = self.currentPlaybackTimeLabel.frame.origin.x + self.currentPlaybackTimeLabel.frame.size.width ;
+    frame.origin.y = self.playbackButton.frame.origin.y;
     frame.size.width = self.footerView.frame.size.width - 60 - 100;
     frame.size.height = 30;
     
