@@ -22,7 +22,6 @@
 
 #import "LbbCCVideo.h"
 #import "DWTools.h"
-#import "DWTableView.h"
 #import "UZAppDelegate.h"
 #import "NSDictionaryUtils.h"
 #import "DWGestureButton.h"
@@ -218,6 +217,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
     // 初始化子视图
     [self loadFooterView];
     [self loadHeaderView];
+    [self loadVolumeView];
+    
     self.videoStatusLabel = [[UILabel alloc] init];
     self.tipLabel = [[UILabel alloc]init];
     [self onDeviceOrientationChange];
@@ -445,13 +446,15 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
     return _brightnessIndicatorView;
 }
-- (ZXVideoPlayerVolumeView *)volumeIndicatorView
-{
-    if (!_volumeIndicatorView) {
-        _volumeIndicatorView = [[ZXVideoPlayerVolumeView alloc] initWithFrame:CGRectMake(self.overlayView.frame.size.width/2 -60,self.overlayView.frame.size.height/2 - 60, kVideoVolumeIndicatorViewSide, kVideoVolumeIndicatorViewSide)];
-    }
-    return _volumeIndicatorView;
-}
+
+//- (ZXVideoPlayerVolumeView *)volumeIndicatorView
+//{
+//    if (!_volumeIndicatorView) {
+//        _volumeIndicatorView = [[ZXVideoPlayerVolumeView alloc] initWithFrame:CGRectMake(self.overlayView.frame.size.width/2 -60,self.overlayView.frame.size.height/2 - 60, kVideoVolumeIndicatorViewSide, kVideoVolumeIndicatorViewSide)];
+//    }
+//    return _volumeIndicatorView;
+//}
+
 #pragma mark------快进，快退，音量增大，减小手势--------
 - (void)panDirection:(UIPanGestureRecognizer *)pan
 {
@@ -1305,7 +1308,25 @@ typedef NSInteger DWPLayerScreenSizeMode;
 
     }
 }
+# pragma mark - 音量
+- (void)loadVolumeView
+{
+    MPVolumeView *volum = [[MPVolumeView alloc] init];
+    volum.center = CGPointMake(-1000, 0);
+    // 遍历volumView上控件，取出音量slider
+    for (UIView *view in volum.subviews){
+        
+        if ([view isKindOfClass:[UISlider class]]) {
+            // 接收系统音量条
+            self.customVolumeSlider = (UISlider *)view;
+        }
+    }
+}
 
+- (void)volumeSliderMoved:(UISlider *)slider
+{
+    self.customVolumeSlider.value = slider.value;
+}
 # pragma mark - 手势识别 UIGestureRecognizerDelegate
 
 -(void)handleSignelTap:(UIGestureRecognizer*)gestureRecognizer
@@ -1333,14 +1354,22 @@ typedef NSInteger DWPLayerScreenSizeMode;
 }
 -(void)handleDoubleTap:(UIGestureRecognizer *)gesture
 {
+    UIImage *image;
     if (self.player.playbackState == MPMoviePlaybackStatePlaying) {
         // 暂停播放
+        self.pausebuttonClick = YES;
+        image = [UIImage imageNamed:@"res_ccVideo/player-playbutton"];
         [self.player pause];
-        
-    }else if (self.player.playbackState == MPMoviePlaybackStatePaused)
-    {
+        [self loadBigPauseButton];
+    } else {
+        // 继续播放
+        self.pausebuttonClick = NO;
+        self.BigPauseButton.hidden = YES;
+        image = [UIImage imageNamed:@"res_ccVideo/player-pausebutton"];
         [self.player play];
+        [self.materialView setHidden:YES];
     }
+    [self.playbackButton setImage:image forState:UIControlStateNormal];
 }
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
@@ -1349,9 +1378,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
             return NO;
         }
         //lbbniu
-        if ([touch.view isKindOfClass:[DWTableView class]]) {
+        /*if ([touch.view isKindOfClass:[DWTableView class]]) {
             return NO;
-        }
+        }*/
         if ([touch.view isKindOfClass:[UISlider class]]) {
             return NO;
         }

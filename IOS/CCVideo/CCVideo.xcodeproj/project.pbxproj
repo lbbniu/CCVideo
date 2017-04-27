@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		013993E21EB1F52100014A67 /* DWGestureButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 013993E11EB1F52100014A67 /* DWGestureButton.m */; };
 		013993EB1EB2044D00014A67 /* DWPlayerMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 013993EA1EB2044D00014A67 /* DWPlayerMenuView.m */; };
-		013993EE1EB2050000014A67 /* DWTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 013993ED1EB2050000014A67 /* DWTableView.m */; };
 		015CC4601BEB046C002A6ED2 /* DWTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 015CC45C1BEB046C002A6ED2 /* DWTools.m */; };
 		015CC55C1BEB08CD002A6ED2 /* res_lbbVideo in Resources */ = {isa = PBXBuildFile; fileRef = 015CC55B1BEB08CD002A6ED2 /* res_lbbVideo */; };
 		01D3D3AC1EA4C8B3007E1AB6 /* ZXVideoPlayerBrightnessView.m in Sources */ = {isa = PBXBuildFile; fileRef = 01D3D3A71EA4C8B3007E1AB6 /* ZXVideoPlayerBrightnessView.m */; };
@@ -69,8 +68,6 @@
 		013993E11EB1F52100014A67 /* DWGestureButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DWGestureButton.m; sourceTree = "<group>"; };
 		013993E91EB2044D00014A67 /* DWPlayerMenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWPlayerMenuView.h; path = UZApp/DWPlayerMenuView.h; sourceTree = SOURCE_ROOT; };
 		013993EA1EB2044D00014A67 /* DWPlayerMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWPlayerMenuView.m; path = UZApp/DWPlayerMenuView.m; sourceTree = SOURCE_ROOT; };
-		013993EC1EB2050000014A67 /* DWTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWTableView.h; path = UZApp/DWTableView.h; sourceTree = SOURCE_ROOT; };
-		013993ED1EB2050000014A67 /* DWTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWTableView.m; path = UZApp/DWTableView.m; sourceTree = SOURCE_ROOT; };
 		015CC45B1BEB046C002A6ED2 /* DWTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWTools.h; path = ../UZApp/DWTools.h; sourceTree = "<group>"; };
 		015CC45C1BEB046C002A6ED2 /* DWTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWTools.m; path = ../UZApp/DWTools.m; sourceTree = "<group>"; };
 		015CC55B1BEB08CD002A6ED2 /* res_lbbVideo */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res_lbbVideo; sourceTree = "<group>"; };
@@ -217,8 +214,6 @@
 		01D402AE1CCE027F00ACBE25 /* SDK */ = {
 			isa = PBXGroup;
 			children = (
-				013993EC1EB2050000014A67 /* DWTableView.h */,
-				013993ED1EB2050000014A67 /* DWTableView.m */,
 				013993E91EB2044D00014A67 /* DWPlayerMenuView.h */,
 				013993EA1EB2044D00014A67 /* DWPlayerMenuView.m */,
 				013993E01EB1F52100014A67 /* DWGestureButton.h */,
@@ -432,7 +427,6 @@
 				01D3D3AD1EA4C8B3007E1AB6 /* ZXVideoPlayerTimeIndicatorView.m in Sources */,
 				01D3D3C01EA5C72A007E1AB6 /* FMDatabaseQueue.m in Sources */,
 				013993EB1EB2044D00014A67 /* DWPlayerMenuView.m in Sources */,
-				013993EE1EB2050000014A67 /* DWTableView.m in Sources */,
 				01D3D3CE1EA865DC007E1AB6 /* LbbCCVideo.m in Sources */,
 				01D3D3C11EA5C72A007E1AB6 /* FMResultSet.m in Sources */,
 				527BCF7419C431480077631F /* AppDelegate.m in Sources */,

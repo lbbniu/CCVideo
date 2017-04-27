@@ -16,7 +16,7 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 #import "DWPlayerMenuView.h"
-#import "DWTableView.h"
+//#import "DWTableView.h"
 #import "DWTools.h"
 
 #define logerror(format, ...) NSLog(@"%s():%d ERROR============ "format, __func__, __LINE__, ##__VA_ARGS__)
@@ -1084,9 +1084,9 @@ static NSMutableArray *array;
             return NO;
         }
         
-        if ([touch.view isKindOfClass:[DWTableView class]]) {
+        /*if ([touch.view isKindOfClass:[DWTableView class]]) {
             return NO;
-        }
+        }*/
         if ([touch.view isKindOfClass:[UISlider class]]) {
             return NO;
         }

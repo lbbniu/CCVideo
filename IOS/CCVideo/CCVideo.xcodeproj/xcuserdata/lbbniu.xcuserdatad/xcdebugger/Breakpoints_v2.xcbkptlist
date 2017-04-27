@@ -10,11 +10,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SDK/DWDownloadItem.h"
-            timestampString = "514978381.633026"
+            timestampString = "514985543.464863"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "12"
-            endingLineNumber = "12">
+            endingLineNumber = "12"
+            landmarkName = "@interface DWDownloadItem"
+            landmarkType = "2">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
