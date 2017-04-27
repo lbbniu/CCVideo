@@ -27,6 +27,8 @@
 #import "NSDictionaryUtils.h"
 #import "DWGestureButton.h"
 #import "Reachability.h"
+#import "DWDownloaditem.h"
+
 typedef NS_ENUM(NSInteger, ZXPanDirection){
     
     ZXPanDirectionHorizontal, // 横向移动
@@ -109,14 +111,18 @@ typedef NSInteger DWPLayerScreenSizeMode;
 @property (nonatomic, assign)BOOL isVolumeAdjust;// 是否在调节音量
 @end
 
+//static DWDownloadItems *downloadFinishItems;
+//static DWDownloadItems *downloadingItems;
+
 //实现
 @implementation LbbCCVideo
 //初始化
 - (id)initWithUZWebView:(UZWebView *)webView_ {
     
     if (self = [super initWithUZWebView:webView_]){
-        NSDictionary *feature = [self getFeatureByName:@"lbbVideo"];
-        userId = [feature stringValueForKey:@"UserId" defaultValue:nil];
+        NSDictionary *feature = [self getFeatureByName:@"ccVideo"];
+        userId = [feature stringValueForKey:@"userId" defaultValue:nil];
+        apiKey = [feature stringValueForKey:@"apiKey" defaultValue:nil];
         [self addObserverForMPMoviePlayController];
         [self addTimer];
     }
@@ -131,11 +137,20 @@ typedef NSInteger DWPLayerScreenSizeMode;
 //打开视频界面
 - (void)open:(NSDictionary *)paramDict{
     
+    _cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    
+    
     userId = [paramDict stringValueForKey:@"userId" defaultValue:nil];
     apiKey = [paramDict stringValueForKey:@"apiKey" defaultValue:nil];
     if(self.player != nil){
         [self closeVideo];
     }
+    NSDictionary *feature = [self getFeatureByName:@"ccVideo"];
+    if(userId == nil){
+        userId = [feature stringValueForKey:@"userId" defaultValue:nil];
+        apiKey = [feature stringValueForKey:@"apiKey" defaultValue:nil];
+    }
+    
     self.player = [[DWMoviePlayerController alloc] initWithUserId:userId key:apiKey];
     self.player.currentPlaybackRate = 1;
     [self addObserverForMPMoviePlayController];
@@ -217,6 +232,23 @@ typedef NSInteger DWPLayerScreenSizeMode;
     [self.overlayView addGestureRecognizer:self.doubleTap];
     [self.signelTap requireGestureRecognizerToFail:self.doubleTap];
     
+    //是否背地
+    BOOL isLocalPlay = [paramDict boolValueForKey:@"isLocalPlay" defaultValue:NO];
+    
+    if (isLocalPlay) {
+        NSFileManager *fileMgr = [NSFileManager defaultManager];
+        NSArray *paths =  NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        NSString *cacheDirectory = [paths objectAtIndex:0];
+        NSString *videoPath;
+        videoPath = [NSString stringWithFormat:@"%@/%@.mp4", cacheDirectory, self.videoId];
+        BOOL bRet = [fileMgr fileExistsAtPath:videoPath];
+        if (bRet) {
+            self.videoId = nil;
+            self.videoLocalPath = videoPath;
+        }
+    }
+    BOOL fullscreen = [paramDict boolValueForKey:@"fullscreen" defaultValue:NO];
+    
     if (self.videoId) {
          [self loadPlayUrls];
     } else if (self.videoLocalPath) {
@@ -232,6 +264,16 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
     // 10 秒后隐藏所有窗口·
     self.hiddenDelaySeconds = 10;
+    if(fullscreen){
+        self.switchScrBtn.selected = YES;
+        [self FullScreenFrameChanges];
+        [self evalJs:@"api.setScreenOrientation({orientation: 'landscape_left'});"];
+        self.isFullscreen = YES;
+    }
+    if(_cbId>0){
+        NSDictionary *ret = @{@"status":@"1"};
+        [self sendResultEventWithCallbackId:_cbId dataDict:ret errDict:nil doDelete:NO];
+    }
 }
 - (void)closeVideo {
     [self.player cancelRequestPlayInfo];
@@ -249,6 +291,18 @@ typedef NSInteger DWPLayerScreenSizeMode;
     [self.videoBackgroundView removeFromSuperview];
     [self.overlayView removeFromSuperview];
 }
+- (void)callback:(NSInteger)cbId doDelete:(BOOL)del {
+    
+    NSString *currentPosition = @"0";
+    NSString *duration = @"0";
+    if(self.player != nil){
+        currentPosition = [NSString stringWithFormat:@"%0.f",self.player.currentPlaybackTime*1000];
+        duration = [NSString stringWithFormat:@"%0.f",self.player.duration*1000];
+    }
+    NSDictionary *ret = @{@"status":@"1",@"currentPosition":currentPosition,@"duration":duration};
+    [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:del];
+}
+
 //关闭播放器
 - (void)close:(NSDictionary *)paramDict{
     [self closeVideo];
@@ -269,7 +323,6 @@ typedef NSInteger DWPLayerScreenSizeMode;
     UIImage *image = nil;
     if (self.player.playbackState != MPMoviePlaybackStatePlaying) {
         // 继续播放
-        // 继续播放
         self.pausebuttonClick = NO;
         self.BigPauseButton.hidden = YES;
         image = [UIImage imageNamed:@"res_ccVideo/player-pausebutton"];
@@ -277,10 +330,10 @@ typedef NSInteger DWPLayerScreenSizeMode;
         [self.materialView setHidden:YES];
         [self.playbackButton setImage:image forState:UIControlStateNormal];
     }
+
+    
     if (cbId >= 0) {
-        
-        NSDictionary *ret = @{@"btnType":@"start",@"ctime":[NSString stringWithFormat:@"%f",self.player.currentPlaybackTime*1000]};
-        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+        [self callback:cbId doDelete:YES];
     }
 }
 
@@ -304,14 +357,23 @@ typedef NSInteger DWPLayerScreenSizeMode;
         [self.playbackButton setImage:image forState:UIControlStateNormal];
     }
     if (cbId >= 0) {
-        NSDictionary *ret = @{@"btnType":@"stop",@"ctime":[NSString stringWithFormat:@"%f",self.player.currentPlaybackTime*1000]};
-        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+        [self callback:cbId doDelete:YES];
+    }
+}
+//取消全屏
+- (void)back:(NSDictionary *)paramDict{
+    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    if (self.isFullscreen == YES) {
+        [self SmallScreenFrameChanges];
+        [self evalJs:@"api.setScreenOrientation({orientation: 'portrait_up'});"];
+        self.isFullscreen = NO;
+    }
+    if (cbId >= 0) {
+        [self callback:cbId doDelete:YES];
     }
 }
 //跳到指定位置播放
 - (void)seekTo:(NSDictionary *)paramDict{
-
-    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
     NSInteger  position = [paramDict integerValueForKey:@"position" defaultValue:0];
     if(position >= 0 && position/1000 <= self.player.duration){
         self.player.currentPlaybackTime = position/1000;
@@ -320,25 +382,23 @@ typedef NSInteger DWPLayerScreenSizeMode;
         self.durationSlider.value = self.player.currentPlaybackTime;
         self.historyPlaybackTime = self.player.currentPlaybackTime;
     }
-    if (cbId >= 0){
-        NSDictionary *ret = @{@"status":@"100",@"ctime":[NSString stringWithFormat:@"%ld",position]};
-        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
-    }
 }
-- (void)getCurrentPosition:(NSDictionary *)paramDict{
 
+- (void)getCurrentPosition:(NSDictionary *)paramDict{
+     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    [self callback:cbId doDelete:YES];
 }
 
 //lbbniu
-//- (void)didReceiveMemoryWarning
-//{
-//    [super didReceiveMemoryWarning];
-//}
-//-(void)viewWillAppear:(BOOL)animated
-//{
-//    [super viewWillAppear:animated];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForegroundNotification) name:UIApplicationWillEnterForegroundNotification object:nil];
-//}
+/*- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+}
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForegroundNotification) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
 //生命周期函数
 - (void)appWillEnterForegroundNotification{
     if (self.player.playbackState == MPMoviePlaybackStatePaused) {
@@ -365,11 +425,12 @@ typedef NSInteger DWPLayerScreenSizeMode;
     // 显示 navigationController
     [self.viewController.navigationController setNavigationBarHidden:NO animated:YES];
 }
+*/
 
 #pragma mark--------创建快进，快退view----------
 - (ZXVideoPlayerTimeIndicatorView *)timeIndicatorView
 {
-    if (!_timeIndicatorView || YES) {
+    if (!_timeIndicatorView) {
         
         _timeIndicatorView = [[ZXVideoPlayerTimeIndicatorView alloc] initWithFrame:CGRectMake(self.overlayView.frame.size.width/2 -60, self.overlayView.frame.size.height/2 - 60, kVideoTimeIndicatorViewSide, kVideoTimeIndicatorViewSide)];
     }
@@ -378,11 +439,18 @@ typedef NSInteger DWPLayerScreenSizeMode;
 
 - (ZXVideoPlayerBrightnessView *)brightnessIndicatorView
 {
-    if (!_brightnessIndicatorView  || YES){
+    if (!_brightnessIndicatorView){
         
         _brightnessIndicatorView = [[ZXVideoPlayerBrightnessView alloc] initWithFrame:CGRectMake(self.overlayView.frame.size.width/2 -60, self.overlayView.frame.size.height/2 - 60, kVideoTimeIndicatorViewSide, kVideoTimeIndicatorViewSide)];
     }
     return _brightnessIndicatorView;
+}
+- (ZXVideoPlayerVolumeView *)volumeIndicatorView
+{
+    if (!_volumeIndicatorView) {
+        _volumeIndicatorView = [[ZXVideoPlayerVolumeView alloc] initWithFrame:CGRectMake(self.overlayView.frame.size.width/2 -60,self.overlayView.frame.size.height/2 - 60, kVideoVolumeIndicatorViewSide, kVideoVolumeIndicatorViewSide)];
+    }
+    return _volumeIndicatorView;
 }
 #pragma mark------快进，快退，音量增大，减小手势--------
 - (void)panDirection:(UIPanGestureRecognizer *)pan
@@ -471,7 +539,6 @@ typedef NSInteger DWPLayerScreenSizeMode;
 - (void)stopDurationTimer
 {
     if (_timer) {
-        
         [self.timer setFireDate:[NSDate distantFuture]];
     }
 }
@@ -505,23 +572,17 @@ typedef NSInteger DWPLayerScreenSizeMode;
     ZXTimeIndicatorPlayState playState = ZXTimeIndicatorPlayStateRewind;
     
     if (value < 0) { // left
-        
         playState = ZXTimeIndicatorPlayStateRewind;
-        
     } else if (value > 0) { // right
-        
         playState = ZXTimeIndicatorPlayStateFastForward;
     }
     
     if (self.timeIndicatorView.playState != playState) {
-        
         if (value < 0) { // left
             
             self.timeIndicatorView.playState = ZXTimeIndicatorPlayStateRewind;
             [self.timeIndicatorView setNeedsLayout];
-            
         } else if (value > 0) { // right
-            
             self.timeIndicatorView.playState = ZXTimeIndicatorPlayStateFastForward;
             [self.timeIndicatorView setNeedsLayout];
         }
@@ -566,13 +627,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
 - (void)startDurationTimer
 {
     if (self.timer) {
-        
         [self.timer setFireDate:[NSDate date]];
     }
 }
-
-
-
 
 # pragma mark 处理网络状态改变
 
@@ -824,6 +881,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
     [self showBasicViews];
     self.hiddenDelaySeconds = 10;
+    self.timeIndicatorView.frame = CGRectMake(self.overlayView.frame.size.width/2 -60, self.overlayView.frame.size.height/2 - 60, kVideoTimeIndicatorViewSide, kVideoTimeIndicatorViewSide);
+    self.brightnessIndicatorView.frame =CGRectMake(self.overlayView.frame.size.width/2 -60, self.overlayView.frame.size.height/2 - 60, kVideoTimeIndicatorViewSide, kVideoTimeIndicatorViewSide);
 }
 
 -(void)toFullScreenWithInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation{
@@ -880,6 +939,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
     
     [self showBasicViews];
     self.hiddenDelaySeconds = 10;
+    
+    self.timeIndicatorView.frame = CGRectMake(self.overlayView.frame.size.width/2 -60, self.overlayView.frame.size.height/2 - 60, kVideoTimeIndicatorViewSide, kVideoTimeIndicatorViewSide);
+    self.brightnessIndicatorView.frame =CGRectMake(self.overlayView.frame.size.width/2 -60, self.overlayView.frame.size.height/2 - 60, kVideoTimeIndicatorViewSide, kVideoTimeIndicatorViewSide);
 }
 -(void)footerViewframe
 {
@@ -1642,4 +1704,73 @@ typedef NSInteger DWPLayerScreenSizeMode;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:&parseError];
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
+//下载代码开始了啊 -----
+
+
+
+//启动下载服务
+-(void)startDownloadSvr:(NSDictionary *)paramDict
+{
+    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    if (cbId >= 0){
+        NSDictionary *ret = @{@"status":@"100"};
+        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+    }
+}
+//停止下载服务
+-(void)stopDownloadSvr:(NSDictionary *)paramDict
+{
+    
+}
+
+//向队列中增加视频
+-(void)addDownloadVideo:(NSDictionary *)paramDict
+{
+    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    if (cbId >= 0){
+        NSDictionary *ret = @{@"status":@"100"};
+        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+    }
+}
+
+//点击视频列表中的视频
+-(void)downloadVideo:(NSDictionary *)paramDict
+{
+    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    if (cbId >= 0){
+        NSDictionary *ret = @{@"status":@"100"};
+        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+    }
+}
+
+//删除视频
+-(void)removeDownloadVideo:(NSDictionary *)paramDict
+{
+    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    if (cbId >= 0){
+        NSDictionary *ret = @{@"status":@"1"};
+        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+    }
+}
+
+//获取下载中的视频列表
+-(void)getDownloadingList:(NSDictionary *)paramDict
+{
+    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    if (cbId >= 0){
+        NSDictionary *ret = @{@"status":@"1"};
+        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+    }
+}
+
+//获取下载完成的视频列表
+-(void)getDownloadedList:(NSDictionary *)paramDict
+{
+    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    if (cbId >= 0){
+        NSDictionary *ret = @{@"status":@"1"};
+        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+    }
+}
+
 @end
