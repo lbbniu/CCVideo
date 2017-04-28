@@ -42,6 +42,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     NSMutableArray *_signArray;
     
     NSInteger _cbId;
+    NSInteger _downloadCbId;
     NSString  *title;
     NSString *userId;
     NSString *apiKey;
@@ -110,11 +111,20 @@ typedef NSInteger DWPLayerScreenSizeMode;
 @property (nonatomic, assign)BOOL isVolumeAdjust;// 是否在调节音量
 @end
 
-//static DWDownloadItems *downloadFinishItems;
-//static DWDownloadItems *downloadingItems;
+static DWDownloadItems *downloadFinishItems;
+static DWDownloadItems *downloadingItems;
 
 //实现
 @implementation LbbCCVideo
++ (void)launch {
+    // 下载
+    if (!downloadingItems) {
+        downloadingItems = [[DWDownloadItems alloc] initWithPath:DWDownloadingItemPlistFilename];
+    }
+    if (!downloadFinishItems) {
+        downloadFinishItems = [[DWDownloadItems alloc] initWithPath:DWDownloadFinishItemPlistFilename];
+    }
+}
 //初始化
 - (id)initWithUZWebView:(UZWebView *)webView_ {
     
@@ -129,8 +139,15 @@ typedef NSInteger DWPLayerScreenSizeMode;
 }
 - (void)dispose {
     //do clean
-    // 停止 drmServer
-    //[drmServer stop];
+    [self closeVideo];//关闭视频
+    if (downloadingItems) {
+        //保存下载列表
+        [downloadingItems writeToPlistFile:DWDownloadingItemPlistFilename];
+    }
+    if (downloadFinishItems) {
+        //保存下载完成列表
+        [downloadFinishItems writeToPlistFile:DWDownloadFinishItemPlistFilename];
+    }
 }
 
 //打开视频界面
@@ -277,6 +294,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
 }
 - (void)closeVideo {
+    if(!self.player){
+        return;
+    }
     [self.player cancelRequestPlayInfo];
     [self saveNsUserDefaults];
     self.player.currentPlaybackTime = self.player.duration;
@@ -1740,24 +1760,81 @@ typedef NSInteger DWPLayerScreenSizeMode;
 //启动下载服务
 -(void)startDownloadSvr:(NSDictionary *)paramDict
 {
-    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
-    if (cbId >= 0){
-        NSDictionary *ret = @{@"status":@"100"};
-        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+    _downloadCbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    
+    if(!downloadingItems){
+        downloadingItems = [[DWDownloadItems alloc] initWithPath:DWDownloadingItemPlistFilename];
+    }
+    
+    if(!downloadFinishItems){
+        downloadFinishItems = [[DWDownloadItems alloc] initWithPath:DWDownloadFinishItemPlistFilename];
+    }
+    
+    
+    if (_downloadCbId >= 0){
+        NSDictionary *ret = @{@"status":@"1"};
+        [self sendResultEventWithCallbackId:_downloadCbId dataDict:ret errDict:nil doDelete:YES];
     }
 }
 //停止下载服务
 -(void)stopDownloadSvr:(NSDictionary *)paramDict
 {
-    
+    [downloadingItems writeToPlistFile:DWDownloadingItemPlistFilename];
+    [downloadFinishItems writeToPlistFile:DWDownloadFinishItemPlistFilename];
 }
 
 //向队列中增加视频
 -(void)addDownloadVideo:(NSDictionary *)paramDict
 {
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    NSString *videoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];
+    NSString *definition = [paramDict stringValueForKey:@"definition" defaultValue:nil];
+    DWDownloadItem *item = nil;
+    BOOL isDownloaded = NO;
+    // 判断是否"下载完成"列表中
+    for (item in downloadFinishItems.items) {
+        if (!definition) {
+            if ([item.videoId isEqualToString:videoId] && !item.definition) {
+                isDownloaded = YES;
+            }
+        } else {
+            if ([item.videoId isEqualToString:videoId] && [item.definition isEqualToString:definition]) {
+                isDownloaded = YES;
+            }
+        }
+    }
+    if(!isDownloaded){
+        // 判断是否"正在下载"列表中
+        for (item in downloadingItems.items) {
+            if (!definition) {
+                if ([item.videoId isEqualToString:videoId] && !item.definition) {
+                    isDownloaded = YES;
+                }
+            } else {
+                if ([item.videoId isEqualToString:videoId] && [item.definition isEqualToString:definition]) {
+                    isDownloaded = YES;
+                }
+            }
+        }
+    }
+    NSDictionary *ret = nil;
+    if(!isDownloaded){
+        ret = @{@"status":@"1"};
+        item = [[DWDownloadItem alloc] init];
+        item.videoId = videoId;
+        item.videoDownloadStatus = DWDownloadStatusWait;
+        
+        if(definition) {
+            item.definition = definition;
+        }
+        [downloadingItems.items addObject:item];
+        
+        //[self.downloadingTableView reloadData]; //回调下载列表 更新数据
+    }else{
+        ret = @{@"status":@"0"};
+    }
+    // 清空数据
     if (cbId >= 0){
-        NSDictionary *ret = @{@"status":@"100"};
         [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
     }
 }
@@ -1766,8 +1843,11 @@ typedef NSInteger DWPLayerScreenSizeMode;
 -(void)downloadVideo:(NSDictionary *)paramDict
 {
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    NSString *videoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];
+
+    
     if (cbId >= 0){
-        NSDictionary *ret = @{@"status":@"100"};
+        NSDictionary *ret = @{@"status":@"1"};
         [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
     }
 }
@@ -1776,6 +1856,39 @@ typedef NSInteger DWPLayerScreenSizeMode;
 -(void)removeDownloadVideo:(NSDictionary *)paramDict
 {
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    NSString *videoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];
+    
+    DWDownloadItem *item = nil;
+    NSInteger index = 0;
+    // 判断是否"下载完成"列表中
+    for (item in downloadFinishItems.items) {
+        if ([item.videoId isEqualToString:videoId]) {
+            if (item.downloader) {
+                [item.downloader pause];
+            }
+            logdebug(@"deleted item: %@", item);
+            [downloadingItems removeObjectAtIndex:index];
+            //lbbniu 刷新UI
+            break;
+        }
+        index++;
+    }
+
+    // 判断是否"正在下载"列表中
+    index = 0;
+    for (item in downloadingItems.items) {
+        if ([item.videoId isEqualToString:videoId]) {
+            if (item.downloader) {
+                [item.downloader pause];
+            }
+            loginfo(@"deleted item: %@", item);
+            [downloadFinishItems removeObjectAtIndex:index];
+            //lbbniu 刷新UI
+            break;
+        }
+        index++;
+    }
+    
     if (cbId >= 0){
         NSDictionary *ret = @{@"status":@"1"};
         [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
@@ -1786,6 +1899,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
 -(void)getDownloadingList:(NSDictionary *)paramDict
 {
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    if(!downloadingItems){
+        downloadingItems = [[DWDownloadItems alloc] initWithPath:DWDownloadingItemPlistFilename];
+    }
     if (cbId >= 0){
         NSDictionary *ret = @{@"status":@"1"};
         [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
@@ -1795,6 +1911,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
 //获取下载完成的视频列表
 -(void)getDownloadedList:(NSDictionary *)paramDict
 {
+    if(!downloadFinishItems){
+        downloadFinishItems = [[DWDownloadItems alloc] initWithPath:DWDownloadFinishItemPlistFilename];
+    }
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
     if (cbId >= 0){
         NSDictionary *ret = @{@"status":@"1"};

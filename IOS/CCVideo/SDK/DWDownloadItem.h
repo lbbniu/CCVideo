@@ -8,7 +8,10 @@ enum {
     DWDownloadStatusFinish = 400,
     DWDownloadStatusFail = 150
 };
+#define DWDownloadingItemPlistFilename @"downloadingItems.plist"
+#define DWDownloadFinishItemPlistFilename @"downloadFinishItems.plist"
 
+#define DWUploadItemPlistFilename @"uploadItems.plist"
 typedef NSInteger DWDownloadStatus;
 @interface DWDownloadItem : NSObject
 @property (strong, nonatomic)NSString *videoId;
