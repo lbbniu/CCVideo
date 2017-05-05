@@ -39,8 +39,8 @@ public class LbbCCVideo extends UZModule {
 		LbbVideoPlayerStandard.NORMAL_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 		JCMediaManager.MCONTEXT = getContext();
 		LbbVideoPlayerStandard.setJcUserAction(new MyUserActionStandard());
-		userId = super.getFeatureValue("lbbVideo", "userId");
-		apiKey = super.getFeatureValue("lbbVideo", "apiKey");
+		userId = super.getFeatureValue("ccVideo", "userId");
+		apiKey = super.getFeatureValue("ccVideo", "apiKey");
 	}
 
 	/**
