@@ -1,6 +1,6 @@
-{
- "name":"lbbVideo",
- "class":"LBModuleCCVideo",
- "methods":["open","stop","start","close","download","downloadStart","downloadStop","rmVideo","seekTo","init"],
+ {
+ "name":"ccVideo",
+ "class":"LbbCCVideo",
+ "methods":["open","stop","start","close","seekTo","getCurrentPosition","back","startDownloadSvr","stopDownloadSvr","addDownloadVideo","removeDownloadVideo","downloadVideo","getDownloadingList","getDownloadedList"],
  "launchClassMethod":"launch"
-}
+ }

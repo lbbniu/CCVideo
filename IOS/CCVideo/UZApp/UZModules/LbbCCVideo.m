@@ -52,7 +52,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     float viewheight;
     //DWDownloader *downloader;
     UIPanGestureRecognizer *tapPan;
-    
+    NSInteger count;
     NSString * viewName;
     BOOL fixed;
 }
@@ -93,6 +93,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
 @property (assign, nonatomic)NSTimeInterval historyPlaybackTime;
 
 @property (strong, nonatomic)NSTimer *timer;
+@property (strong, nonatomic)NSTimer *downloadTimer;
 @property (assign, nonatomic)BOOL hiddenAll;
 @property (assign, nonatomic)NSInteger hiddenDelaySeconds;
 @property(nonatomic,strong)NSDictionary *playPosition;
@@ -129,6 +130,7 @@ static DWDownloadItems *downloadingItems;
 - (id)initWithUZWebView:(UZWebView *)webView_ {
     
     if (self = [super initWithUZWebView:webView_]){
+        count = 0;
         NSDictionary *feature = [self getFeatureByName:@"ccVideo"];
         userId = [feature stringValueForKey:@"userId" defaultValue:nil];
         apiKey = [feature stringValueForKey:@"apiKey" defaultValue:nil];
@@ -140,6 +142,7 @@ static DWDownloadItems *downloadingItems;
 - (void)dispose {
     //do clean
     [self closeVideo];//关闭视频
+    [self downloadRemoveTimer];
     if (downloadingItems) {
         //保存下载列表
         [downloadingItems writeToPlistFile:DWDownloadingItemPlistFilename];
@@ -1769,18 +1772,26 @@ static DWDownloadItems *downloadingItems;
     if(!downloadFinishItems){
         downloadFinishItems = [[DWDownloadItems alloc] initWithPath:DWDownloadFinishItemPlistFilename];
     }
-    
+    [self downloadAddTimer];
     
     if (_downloadCbId >= 0){
         NSDictionary *ret = @{@"status":@"1"};
-        [self sendResultEventWithCallbackId:_downloadCbId dataDict:ret errDict:nil doDelete:YES];
+        [self sendResultEventWithCallbackId:_downloadCbId dataDict:ret errDict:nil doDelete:NO];
     }
 }
 //停止下载服务
 -(void)stopDownloadSvr:(NSDictionary *)paramDict
 {
-    [downloadingItems writeToPlistFile:DWDownloadingItemPlistFilename];
-    [downloadFinishItems writeToPlistFile:DWDownloadFinishItemPlistFilename];
+    if (downloadingItems) {
+        //保存下载列表
+        [downloadingItems writeToPlistFile:DWDownloadingItemPlistFilename];
+    }
+    if (downloadFinishItems) {
+        //保存下载完成列表
+        [downloadFinishItems writeToPlistFile:DWDownloadFinishItemPlistFilename];
+    }
+    [self downloadRemoveTimer];
+
 }
 
 //向队列中增加视频
@@ -1828,8 +1839,9 @@ static DWDownloadItems *downloadingItems;
             item.definition = definition;
         }
         [downloadingItems.items addObject:item];
-        
-        //[self.downloadingTableView reloadData]; //回调下载列表 更新数据
+        //回调下载列表 更新数据
+        //[self.downloadingTableView reloadData];
+        [self callbackDownloadList:downloadingItems callbackId:_downloadCbId action:@"lbb.downloading"];
     }else{
         ret = @{@"status":@"0"};
     }
@@ -1839,13 +1851,28 @@ static DWDownloadItems *downloadingItems;
     }
 }
 
-//点击视频列表中的视频
+//点击视频列表中的视频  lbbniu
 -(void)downloadVideo:(NSDictionary *)paramDict
 {
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
     NSString *videoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];
-
-    
+    DWDownloadItem *item = nil;
+    for (item in downloadingItems.items) {
+        if ([item.videoId isEqualToString:videoId]) {
+            if (item.videoDownloadStatus == DWDownloadStatusDownloading) {//下载中
+                if (item.downloader ) {
+                    [item.downloader pause];
+                }
+                item.videoDownloadStatus = DWDownloadStatusPause;
+            }else if(item.videoDownloadStatus == DWDownloadStatusPause){//暂停中
+                [item.downloader resume];
+                item.videoDownloadStatus = DWDownloadStatusDownloading;
+            }
+            break;
+        }
+    }
+    //lbbniu 刷新UI
+    [self callbackDownloadList:downloadingItems callbackId:_downloadCbId action:@"lbb.downloading"];
     if (cbId >= 0){
         NSDictionary *ret = @{@"status":@"1"};
         [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
@@ -1857,18 +1884,15 @@ static DWDownloadItems *downloadingItems;
 {
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
     NSString *videoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];
-    
     DWDownloadItem *item = nil;
     NSInteger index = 0;
     // 判断是否"下载完成"列表中
     for (item in downloadFinishItems.items) {
         if ([item.videoId isEqualToString:videoId]) {
-            if (item.downloader) {
-                [item.downloader pause];
-            }
-            logdebug(@"deleted item: %@", item);
-            [downloadingItems removeObjectAtIndex:index];
+            logdebug(@"deleted item---: %@", item);
+            [downloadFinishItems removeObjectAtIndex:index];
             //lbbniu 刷新UI
+            [self callbackDownloadList:downloadFinishItems callbackId:_downloadCbId action:@"lbb.downloaded"];
             break;
         }
         index++;
@@ -1881,9 +1905,10 @@ static DWDownloadItems *downloadingItems;
             if (item.downloader) {
                 [item.downloader pause];
             }
-            loginfo(@"deleted item: %@", item);
-            [downloadFinishItems removeObjectAtIndex:index];
+            loginfo(@"deleted item===: %@", item);
+            [downloadingItems removeObjectAtIndex:index];
             //lbbniu 刷新UI
+            [self callbackDownloadList:downloadingItems callbackId:_downloadCbId action:@"lbb.downloading"];
             break;
         }
         index++;
@@ -1902,23 +1927,201 @@ static DWDownloadItems *downloadingItems;
     if(!downloadingItems){
         downloadingItems = [[DWDownloadItems alloc] initWithPath:DWDownloadingItemPlistFilename];
     }
-    if (cbId >= 0){
-        NSDictionary *ret = @{@"status":@"1"};
-        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
-    }
+    [self callbackDownloadList:downloadingItems callbackId:cbId action:nil];
 }
 
 //获取下载完成的视频列表
 -(void)getDownloadedList:(NSDictionary *)paramDict
 {
+     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
     if(!downloadFinishItems){
         downloadFinishItems = [[DWDownloadItems alloc] initWithPath:DWDownloadFinishItemPlistFilename];
     }
-    NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
+    [self callbackDownloadList:downloadFinishItems callbackId:cbId action:nil];
+}
+
+-(void)callbackDownloadList:(DWDownloadItems *)downloadItems callbackId:(NSInteger )cbId action:(NSString *)action {
+    DWDownloadItem *item = nil;
+    NSInteger index = 0;
+    NSMutableArray *callBackArr = [NSMutableArray array];
+    // 判断是否"下载完成"列表中
+    for (item in downloadItems.items) {
+        NSMutableDictionary * ttt =[NSMutableDictionary dictionaryWithCapacity:3];
+        [ttt setObject:[NSNumber numberWithInteger:++index] forKey:@"id"];
+        [ttt setObject:item.videoId forKey:@"title"];
+        [ttt setObject:item.videoId forKey:@"videoId"];
+        [ttt setObject:[NSNumber numberWithInteger:item.videoDownloadProgress*100] forKey:@"progress"];
+        float downloadedSizeMB = [item videoDownloadedSize]/1024.0/1024.0;
+        float fileSizeMB = [item videoFileSize]/1024.0/1024.0;
+        [ttt setObject:[NSString stringWithFormat:@"%0.1fM", downloadedSizeMB] forKey:@"downloadSize"];
+        [ttt setObject:[NSString stringWithFormat:@"%0.1fM", fileSizeMB] forKey:@"fileSize"];
+        [ttt setObject:[NSString stringWithFormat:@"已下载%0.1fM / 共%0.1fM 占比%0.1f 下载速度", downloadedSizeMB, fileSizeMB , item.videoDownloadProgress*100] forKey:@"progressText"];
+        //[ttt setObject:item.definition forKey:@"definition"];
+        switch (item.videoDownloadStatus) {
+            case DWDownloadStatusWait:
+                // 状态转为 开始下载
+                [ttt setObject:@"等待中" forKey:@"statusInfo"];
+                break;
+                
+            case DWDownloadStatusStart:
+                // 状态转为 暂停下载
+                [ttt setObject:@"下载中" forKey:@"statusInfo"];
+                break;
+                
+            case DWDownloadStatusDownloading:
+                // 状态转为 暂停下载
+                [ttt setObject:@"下载中" forKey:@"statusInfo"];
+                break;
+                
+            case DWDownloadStatusPause:
+                // 状态转为 开始下载
+                [ttt setObject:@"暂停中" forKey:@"statusInfo"];
+                break;
+                
+            case DWDownloadStatusFail:
+                // 状态转为 重新开始
+                [ttt setObject:@"暂停中" forKey:@"statusInfo"];
+                break;
+                
+            case DWDownloadStatusFinish:
+                // 播放本地视频
+                [ttt setObject:@"已下载"  forKey:@"statusInfo"];
+                break;
+                
+            default:
+                break;
+        }
+        [callBackArr addObject:ttt];
+    }
+    NSMutableDictionary *sendDict = [NSMutableDictionary dictionaryWithCapacity:1];
+    [sendDict setObject:@"1" forKey:@"status"];
+    if(action != nil){
+        [sendDict setObject:action forKey:@"action"];
+    }
+    [sendDict setObject:callBackArr forKey:@"data"];
     if (cbId >= 0){
-        NSDictionary *ret = @{@"status":@"1"};
-        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+        loginfo(@"sendDict item: %@", sendDict);
+        [self sendResultEventWithCallbackId:cbId dataDict:sendDict errDict:nil doDelete:NO];
     }
 }
 
+# pragma mark - timer
+
+- (void)downloadAddTimer
+{
+    if (!self.downloadTimer) {
+        self.downloadTimer = [NSTimer scheduledTimerWithTimeInterval:1.0f target:self selector:@selector(downloadTimerHandler) userInfo:nil repeats:YES];
+    }
+}
+
+- (void)downloadRemoveTimer
+{
+    [self.downloadTimer invalidate];
+}
+
+- (void)downloadTimerHandler
+{
+    if(count%10 == 0){
+        if (downloadingItems) {
+            //保存下载列表
+            [downloadingItems writeToPlistFile:DWDownloadingItemPlistFilename];
+        }
+        if (downloadFinishItems) {
+            //保存下载完成列表
+            [downloadFinishItems writeToPlistFile:DWDownloadFinishItemPlistFilename];
+        }
+    }
+    DWDownloadItem *item = nil;
+    NSInteger index = 0;
+    for (item in downloadingItems.items) {
+        if (item.videoDownloadStatus == DWDownloadStatusWait) {
+            break;
+        }
+        index++;
+    }
+    
+    if (!item) {
+        return;
+    }
+    // 开始下载
+    logdebug(@"download start item: %@", item);
+    [self videoDownloadStartWithItem:item];
+}
+- (void)videoDownloadStartWithItem:(DWDownloadItem *)item
+{
+    // 更新下载状态
+    item.videoDownloadStatus  = DWDownloadStatusStart;
+    // 开始下载
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentDirectory = [paths objectAtIndex:0];
+    
+    // DEMO_REPLACE_CODE_OFFLINE_EXTENSION_{
+    /* 注意：
+     若你所下载的 videoId 未启用视频加密功能，则保存的文件扩展名[必须]是 mp4，否则无法播放。
+     若你所下载的 videoId 启用了视频加密功能，则保存的文件扩展名[必须]是 pcm，否则无法播放。
+     */
+    
+    NSString *videoPath;
+    
+    if (!item.definition) {
+        videoPath = [NSString stringWithFormat:@"%@/%@.mp4", documentDirectory, item.videoId];
+    } else {
+        videoPath = [NSString stringWithFormat:@"%@/%@-%@.mp4", documentDirectory, item.videoId, item.definition];
+    }
+    
+    item.videoPath = videoPath;
+    DWDownloader *downloader = [[DWDownloader alloc] initWithUserId:userId
+                                                         andVideoId:item.videoId
+                                                                key:apiKey
+                                                    destinationPath:item.videoPath];
+    item.downloader = downloader;
+    item.videoDownloadStatus  = DWDownloadStatusDownloading;
+    downloader.timeoutSeconds = 20;
+    
+    [self setDownloaderBlocksWithItem:item];
+    
+    //if (self.playUrl) {
+    //   [downloader startWithUrlString:self.playUrl];
+    //} else {
+        [downloader start];
+    //}
+    
+}
+
+- (void)setDownloaderBlocksWithItem:(DWDownloadItem *)item
+{
+    DWDownloader *downloader = item.downloader;
+    
+    downloader.progressBlock = ^(float progress, NSInteger totalBytesWritten, NSInteger totalBytesExpectedToWrite) {
+        item.videoDownloadedSize = totalBytesWritten;
+        item.videoFileSize = totalBytesExpectedToWrite;
+        item.videoDownloadProgress = (float)item.videoDownloadedSize/item.videoFileSize;
+        
+        NSLog(@"totalBytesWritten==%ld,totalBytesExpectedToWrite==%ld",(long)totalBytesWritten,(long)totalBytesExpectedToWrite);
+        
+        [self callbackDownloadList:downloadingItems callbackId:_downloadCbId action:@"lbb.downloading"];
+        //[cell updateCellProgress:item];
+    };
+    
+    downloader.failBlock = ^(NSError *error) {
+        item.videoDownloadStatus = DWDownloadStatusFail;
+        //[cell updateDownloadStatus:item];
+        [self callbackDownloadList:downloadingItems callbackId:_downloadCbId action:@"lbb.downloading"];
+        logerror(@"download fail %@", [error localizedDescription]);
+        logerror(@"download fail %@", item);
+    };
+    
+    downloader.finishBlock = ^() {
+        item.videoDownloadStatus = DWDownloadStatusFinish;
+        //[cell updateDownloadStatus:item];
+        [downloadingItems.items removeObject:item];
+        [downloadFinishItems.items insertObject:item atIndex:0];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self callbackDownloadList:downloadFinishItems callbackId:_downloadCbId action:@"lbb.downloaded"];
+            [self callbackDownloadList:downloadingItems callbackId:_downloadCbId action:@"lbb.downloading"];
+        });
+        
+        logdebug(@"download finish %@", item);
+    };
+}
 @end
