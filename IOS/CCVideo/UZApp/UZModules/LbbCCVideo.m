@@ -288,7 +288,7 @@ static DWDownloadItems *downloadingItems;
     if(fullscreen){
         self.switchScrBtn.selected = YES;
         [self FullScreenFrameChanges];
-        [self evalJs:@"api.setScreenOrientation({orientation: 'landscape_left'});"];
+        [self evalJs:@"api.setScreenOrientation({orientation: 'landscape_right'});"];
         self.isFullscreen = YES;
     }
     if(_cbId>0){
@@ -389,7 +389,6 @@ static DWDownloadItems *downloadingItems;
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
     if (self.isFullscreen == YES) {
         [self SmallScreenFrameChanges];
-        [self evalJs:@"api.setScreenOrientation({orientation: 'portrait_up'});"];
         self.isFullscreen = NO;
     }
     if (cbId >= 0) {
@@ -774,12 +773,10 @@ static DWDownloadItems *downloadingItems;
 {
     if (self.isFullscreen == YES) {
         [self SmallScreenFrameChanges];
-        [self evalJs:@"api.setScreenOrientation({orientation: 'portrait_up'});"];
         self.isFullscreen = NO;
     }else{
         //关闭视频
         [self.viewController.navigationController popViewControllerAnimated:YES];
-        [self evalJs:@"api.setScreenOrientation({orientation: 'portrait_up'});"];
     }
 }
 
@@ -850,19 +847,22 @@ static DWDownloadItems *downloadingItems;
     
     if (self.switchScrBtn.selected == YES) {
         [self FullScreenFrameChanges];
+        //[[UIDevice currentDevice] setValue:[NSNumber numberWithInteger:UIDeviceOrientationLandscapeLeft] forKey:@"orientation"];
         [self evalJs:@"api.setScreenOrientation({orientation: 'landscape_left'});"];
         self.isFullscreen = YES;
         NSLog(@"点击按钮 to Full");
     }
     else{
         [self SmallScreenFrameChanges];
-        [self evalJs:@"api.setScreenOrientation({orientation: 'portrait_up'});"];
         self.isFullscreen = NO;
         NSLog(@"点击按钮 to Small");
     }
 }
 
 -(void)SmallScreenFrameChanges{
+    if (self.isFullscreen == YES) {
+        [self evalJs:@"api.setScreenOrientation({orientation: 'portrait_up'});"];
+    }
     self.isFullscreen = NO;
     
     [self.videoBackgroundView removeFromSuperview];
@@ -872,9 +872,9 @@ static DWDownloadItems *downloadingItems;
     [self.BigPauseButton removeFromSuperview];
     
 
-    self.viewController.view.transform = CGAffineTransformIdentity;
+    //self.viewController.view.transform = CGAffineTransformIdentity;
     self.overlayView.transform =CGAffineTransformIdentity;
-    [[UIDevice currentDevice] setValue:[NSNumber numberWithInteger:UIDeviceOrientationPortrait] forKey:@"orientation"];
+    //[[UIDevice currentDevice] setValue:[NSNumber numberWithInteger:UIDeviceOrientationPortrait] forKey:@"orientation"];
     [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationPortrait animated:YES];
     
     self.overlayView.backgroundColor = [UIColor clearColor];
@@ -926,8 +926,8 @@ static DWDownloadItems *downloadingItems;
     [self.BigPauseButton removeFromSuperview];
     
     
-    self.viewController.view.transform = CGAffineTransformIdentity;
-    self.overlayView.transform = CGAffineTransformIdentity;
+    //self.uzWebView.transform = CGAffineTransformIdentity;
+    //self.overlayView.transform = CGAffineTransformIdentity;
     
     CGFloat max = MAX([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     CGFloat min = MIN([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
@@ -1008,7 +1008,9 @@ static DWDownloadItems *downloadingItems;
             break;
         case UIInterfaceOrientationPortrait:{
             NSLog(@"第0个旋转方向---电池栏在上");
-            [self SmallScreenFrameChanges];
+            //if (self.isFullscreen == YES) {
+                [self SmallScreenFrameChanges];
+            //}
         }
             break;
         case UIInterfaceOrientationLandscapeLeft:{
