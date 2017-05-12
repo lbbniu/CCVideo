@@ -11,6 +11,8 @@
 #import "ZXVideoPlayerTimeIndicatorView.h"
 #import "ZXVideoPlayerVolumeView.h"
 #import "ZXVideoPlayerBrightnessView.h"
+#import "DownloadManager.h"
+#define DOWNLOADMANAGER [DownloadManager sharedInstance]
 
 @interface LbbCCVideo : UZModule
 
@@ -26,4 +28,6 @@
 
 // 亮度
 @property (nonatomic, strong) ZXVideoPlayerBrightnessView *brightnessIndicatorView;
+
+
 @end

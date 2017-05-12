@@ -436,15 +436,11 @@ public class LbbCCVideo extends UZModule {
 	 */
 	@UzJavascriptMethod
 	public void jsmethod_addDownloadVideo(final UZModuleContext moduleContext) {
-		if (lbbDownloadControl != null) {
-			ConfigUtil.USERID = moduleContext.optString("userId", userId);
-			ConfigUtil.API_KEY = moduleContext.optString("apiKey", apiKey);
-			lbbDownloadControl.addDownloadVideo(moduleContext
-					.optString("videoId"));
-			jscallback(moduleContext, 1, "成功", true);
-		} else {
-			jscallback(moduleContext, 0, "服务没有启动", true);
-		}
+		ConfigUtil.USERID = moduleContext.optString("userId", userId);
+		ConfigUtil.API_KEY = moduleContext.optString("apiKey", apiKey);
+		new LbbDownloadControl(mContext).addDownloadVideo(moduleContext
+				.optString("videoId"));
+		jscallback(moduleContext, 1, "成功", true);	
 	}
 
 	/**
@@ -454,13 +450,9 @@ public class LbbCCVideo extends UZModule {
 	 */
 	@UzJavascriptMethod
 	public void jsmethod_downloadVideo(final UZModuleContext moduleContext) {
-		if (lbbDownloadControl != null) {
-			lbbDownloadControl.downloadVideo(moduleContext
-					.optString("videoId"));
-			jscallback(moduleContext, 1, "成功", true);
-		} else {
-			jscallback(moduleContext, 0, "服务没有启动", true);
-		}
+		new LbbDownloadControl(mContext).downloadVideo(moduleContext
+				.optString("videoId"));
+		jscallback(moduleContext, 1, "成功", true);
 	}
 
 	/**
@@ -470,13 +462,9 @@ public class LbbCCVideo extends UZModule {
 	 */
 	@UzJavascriptMethod
 	public void jsmethod_removeDownloadVideo(final UZModuleContext moduleContext) {
-		if (lbbDownloadControl != null) {
-			lbbDownloadControl.removeDownlowndVideo(moduleContext
-					.optString("videoId"));
-			jscallback(moduleContext, 1, "删除成功", true);
-		} else {
-			jscallback(moduleContext, 0, "服务没有启动", true);
-		}
+		new LbbDownloadControl(mContext).removeDownlowndVideo(moduleContext
+				.optString("videoId"));
+		jscallback(moduleContext, 1, "删除成功", true);
 	}
 
 	/**

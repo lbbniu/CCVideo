@@ -26,7 +26,7 @@ typedef NSInteger DWDownloadStatus;
 @property (assign, nonatomic)NSInteger videoFileSize;
 @property (assign, nonatomic)NSInteger videoDownloadedSize;
 @property (assign, nonatomic)float videoDownloadProgress;
-
+@property (assign, nonatomic)NSInteger secondSize;
 
 
 

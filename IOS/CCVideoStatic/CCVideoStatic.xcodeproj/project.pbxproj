@@ -7,15 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		011688291EC47F0B0086077A /* DownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 011688281EC47F0B0086077A /* DownloadManager.m */; };
 		015117591EBC961A009675C4 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0151174F1EBC961A009675C4 /* FMDatabase.m */; };
 		0151175A1EBC961A009675C4 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 015117511EBC961A009675C4 /* FMDatabaseAdditions.m */; };
 		0151175B1EBC961A009675C4 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 015117531EBC961A009675C4 /* FMDatabasePool.m */; };
 		0151175C1EBC961A009675C4 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 015117551EBC961A009675C4 /* FMDatabaseQueue.m */; };
 		0151175D1EBC961A009675C4 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 015117581EBC961A009675C4 /* FMResultSet.m */; };
 		0151176B1EBC9634009675C4 /* DWDownloadItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 015117601EBC9634009675C4 /* DWDownloadItem.m */; };
-		0151176C1EBC9634009675C4 /* DWGestureButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 015117631EBC9634009675C4 /* DWGestureButton.m */; };
 		0151176D1EBC9634009675C4 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 0151176A1EBC9634009675C4 /* Reachability.m */; };
-		015117751EBC9662009675C4 /* DWPlayerMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 015117711EBC9662009675C4 /* DWPlayerMenuView.m */; };
 		015117761EBC9662009675C4 /* DWTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 015117731EBC9662009675C4 /* DWTools.m */; };
 		015117831EBC9699009675C4 /* LbbCCVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 0151177C1EBC9699009675C4 /* LbbCCVideo.m */; };
 		015117841EBC9699009675C4 /* ZXVideoPlayerBrightnessView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0151177E1EBC9699009675C4 /* ZXVideoPlayerBrightnessView.m */; };
@@ -36,6 +35,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		011688271EC47F0B0086077A /* DownloadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DownloadManager.h; path = ../CCVideo/UZApp/UZModules/DownloadManager.h; sourceTree = "<group>"; };
+		011688281EC47F0B0086077A /* DownloadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DownloadManager.m; path = ../CCVideo/UZApp/UZModules/DownloadManager.m; sourceTree = "<group>"; };
 		015117411EBC94DB009675C4 /* libCCVideoStatic.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCCVideoStatic.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		0151174E1EBC961A009675C4 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
 		0151174F1EBC961A009675C4 /* FMDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
@@ -48,21 +49,17 @@
 		015117561EBC961A009675C4 /* FMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDB.h; sourceTree = "<group>"; };
 		015117571EBC961A009675C4 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
 		015117581EBC961A009675C4 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
-		0151175E1EBC9634009675C4 /* DWDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWDownloader.h; path = ../SDK/DWDownloader.h; sourceTree = "<group>"; };
-		0151175F1EBC9634009675C4 /* DWDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWDownloadItem.h; path = ../SDK/DWDownloadItem.h; sourceTree = "<group>"; };
-		015117601EBC9634009675C4 /* DWDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWDownloadItem.m; path = ../SDK/DWDownloadItem.m; sourceTree = "<group>"; };
-		015117611EBC9634009675C4 /* DWDrmServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWDrmServer.h; path = ../SDK/DWDrmServer.h; sourceTree = "<group>"; };
-		015117621EBC9634009675C4 /* DWGestureButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWGestureButton.h; path = ../SDK/DWGestureButton.h; sourceTree = "<group>"; };
-		015117631EBC9634009675C4 /* DWGestureButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWGestureButton.m; path = ../SDK/DWGestureButton.m; sourceTree = "<group>"; };
-		015117641EBC9634009675C4 /* DWLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWLog.h; path = ../SDK/DWLog.h; sourceTree = "<group>"; };
-		015117651EBC9634009675C4 /* DWMoviePlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWMoviePlayerController.h; path = ../SDK/DWMoviePlayerController.h; sourceTree = "<group>"; };
-		015117661EBC9634009675C4 /* DWSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWSDK.h; path = ../SDK/DWSDK.h; sourceTree = "<group>"; };
-		015117671EBC9634009675C4 /* DWUploader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWUploader.h; path = ../SDK/DWUploader.h; sourceTree = "<group>"; };
-		015117681EBC9634009675C4 /* DWVideoCompressController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWVideoCompressController.h; path = ../SDK/DWVideoCompressController.h; sourceTree = "<group>"; };
-		015117691EBC9634009675C4 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = ../SDK/Reachability.h; sourceTree = "<group>"; };
-		0151176A1EBC9634009675C4 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reachability.m; path = ../SDK/Reachability.m; sourceTree = "<group>"; };
-		015117701EBC9662009675C4 /* DWPlayerMenuView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWPlayerMenuView.h; path = ../CCVideo/UZApp/DWPlayerMenuView.h; sourceTree = "<group>"; };
-		015117711EBC9662009675C4 /* DWPlayerMenuView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWPlayerMenuView.m; path = ../CCVideo/UZApp/DWPlayerMenuView.m; sourceTree = "<group>"; };
+		0151175E1EBC9634009675C4 /* DWDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWDownloader.h; path = ../CCVideo/SDK/DWDownloader.h; sourceTree = "<group>"; };
+		0151175F1EBC9634009675C4 /* DWDownloadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWDownloadItem.h; path = ../CCVideo/SDK/DWDownloadItem.h; sourceTree = "<group>"; };
+		015117601EBC9634009675C4 /* DWDownloadItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWDownloadItem.m; path = ../CCVideo/SDK/DWDownloadItem.m; sourceTree = "<group>"; };
+		015117611EBC9634009675C4 /* DWDrmServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWDrmServer.h; path = ../CCVideo/SDK/DWDrmServer.h; sourceTree = "<group>"; };
+		015117641EBC9634009675C4 /* DWLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWLog.h; path = ../CCVideo/SDK/DWLog.h; sourceTree = "<group>"; };
+		015117651EBC9634009675C4 /* DWMoviePlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWMoviePlayerController.h; path = ../CCVideo/SDK/DWMoviePlayerController.h; sourceTree = "<group>"; };
+		015117661EBC9634009675C4 /* DWSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWSDK.h; path = ../CCVideo/SDK/DWSDK.h; sourceTree = "<group>"; };
+		015117671EBC9634009675C4 /* DWUploader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWUploader.h; path = ../CCVideo/SDK/DWUploader.h; sourceTree = "<group>"; };
+		015117681EBC9634009675C4 /* DWVideoCompressController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWVideoCompressController.h; path = ../CCVideo/SDK/DWVideoCompressController.h; sourceTree = "<group>"; };
+		015117691EBC9634009675C4 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = ../CCVideo/SDK/Reachability.h; sourceTree = "<group>"; };
+		0151176A1EBC9634009675C4 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reachability.m; path = ../CCVideo/SDK/Reachability.m; sourceTree = "<group>"; };
 		015117721EBC9662009675C4 /* DWTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DWTools.h; path = ../CCVideo/UZApp/DWTools.h; sourceTree = "<group>"; };
 		015117731EBC9662009675C4 /* DWTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DWTools.m; path = ../CCVideo/UZApp/DWTools.m; sourceTree = "<group>"; };
 		015117771EBC9676009675C4 /* NSDictionaryUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSDictionaryUtils.h; path = ../CCVideo/UZApp/UZEngine/NSDictionaryUtils.h; sourceTree = "<group>"; };
@@ -93,14 +90,25 @@
 		015117381EBC94DB009675C4 = {
 			isa = PBXGroup;
 			children = (
-				015117701EBC9662009675C4 /* DWPlayerMenuView.h */,
-				015117711EBC9662009675C4 /* DWPlayerMenuView.m */,
 				015117721EBC9662009675C4 /* DWTools.h */,
 				015117731EBC9662009675C4 /* DWTools.m */,
 				015117771EBC9676009675C4 /* NSDictionaryUtils.h */,
 				015117781EBC9676009675C4 /* UZAppDelegate.h */,
 				015117791EBC9676009675C4 /* UZAppUtils.h */,
 				0151177A1EBC9676009675C4 /* UZModule.h */,
+				0151175E1EBC9634009675C4 /* DWDownloader.h */,
+				0151175F1EBC9634009675C4 /* DWDownloadItem.h */,
+				015117601EBC9634009675C4 /* DWDownloadItem.m */,
+				015117611EBC9634009675C4 /* DWDrmServer.h */,
+				015117641EBC9634009675C4 /* DWLog.h */,
+				015117691EBC9634009675C4 /* Reachability.h */,
+				0151176A1EBC9634009675C4 /* Reachability.m */,
+				015117651EBC9634009675C4 /* DWMoviePlayerController.h */,
+				011688271EC47F0B0086077A /* DownloadManager.h */,
+				011688281EC47F0B0086077A /* DownloadManager.m */,
+				015117661EBC9634009675C4 /* DWSDK.h */,
+				015117671EBC9634009675C4 /* DWUploader.h */,
+				015117681EBC9634009675C4 /* DWVideoCompressController.h */,
 				0151174D1EBC961A009675C4 /* fmdb */,
 				015117431EBC94DB009675C4 /* CCVideoStatic */,
 				015117421EBC94DB009675C4 /* Products */,
@@ -133,19 +141,6 @@
 		0151174D1EBC961A009675C4 /* fmdb */ = {
 			isa = PBXGroup;
 			children = (
-				0151175E1EBC9634009675C4 /* DWDownloader.h */,
-				0151175F1EBC9634009675C4 /* DWDownloadItem.h */,
-				015117601EBC9634009675C4 /* DWDownloadItem.m */,
-				015117611EBC9634009675C4 /* DWDrmServer.h */,
-				015117621EBC9634009675C4 /* DWGestureButton.h */,
-				015117631EBC9634009675C4 /* DWGestureButton.m */,
-				015117641EBC9634009675C4 /* DWLog.h */,
-				015117651EBC9634009675C4 /* DWMoviePlayerController.h */,
-				015117661EBC9634009675C4 /* DWSDK.h */,
-				015117671EBC9634009675C4 /* DWUploader.h */,
-				015117681EBC9634009675C4 /* DWVideoCompressController.h */,
-				015117691EBC9634009675C4 /* Reachability.h */,
-				0151176A1EBC9634009675C4 /* Reachability.m */,
 				0151174E1EBC961A009675C4 /* FMDatabase.h */,
 				0151174F1EBC961A009675C4 /* FMDatabase.m */,
 				015117501EBC961A009675C4 /* FMDatabaseAdditions.h */,
@@ -221,8 +216,8 @@
 				015117591EBC961A009675C4 /* FMDatabase.m in Sources */,
 				0151175C1EBC961A009675C4 /* FMDatabaseQueue.m in Sources */,
 				015117831EBC9699009675C4 /* LbbCCVideo.m in Sources */,
-				015117751EBC9662009675C4 /* DWPlayerMenuView.m in Sources */,
 				0151176D1EBC9634009675C4 /* Reachability.m in Sources */,
+				011688291EC47F0B0086077A /* DownloadManager.m in Sources */,
 				0151175B1EBC961A009675C4 /* FMDatabasePool.m in Sources */,
 				015117761EBC9662009675C4 /* DWTools.m in Sources */,
 				0151176B1EBC9634009675C4 /* DWDownloadItem.m in Sources */,
@@ -231,7 +226,6 @@
 				015117841EBC9699009675C4 /* ZXVideoPlayerBrightnessView.m in Sources */,
 				015117861EBC9699009675C4 /* ZXVideoPlayerVolumeView.m in Sources */,
 				015117851EBC9699009675C4 /* ZXVideoPlayerTimeIndicatorView.m in Sources */,
-				0151176C1EBC9634009675C4 /* DWGestureButton.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,6 +361,7 @@
 				0151174C1EBC94DC009675C4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

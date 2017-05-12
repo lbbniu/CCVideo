@@ -47,7 +47,7 @@ public class LbbDownloadControl {
 	
 	private Timer timter = new Timer();
 	private Intent service;
-	private DownloadBinder binder;
+	private static DownloadBinder binder;
 	private DownloadedReceiver receiver;
 	
 	//已经下载的视频列表
