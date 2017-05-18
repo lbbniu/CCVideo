@@ -373,7 +373,7 @@
 				TargetAttributes = {
 					527BCF6A19C431480077631F = {
 						CreatedOnToolsVersion = 6.0;
-						DevelopmentTeam = G33Q7E6S97;
+						DevelopmentTeam = Q5R9NQQDS3;
 					};
 				};
 			};

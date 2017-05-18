@@ -43,7 +43,7 @@ public class LbbDownloadControl {
 	public static HashMap<String, Downloader> downloaderHashMap = new HashMap<String, Downloader>();
 		
 	private Context mContext;
-	private UZModuleContext mJsmoduleContext;
+	private static UZModuleContext mJsmoduleContext;
 	
 	private Timer timter = new Timer();
 	private Intent service;
@@ -124,7 +124,7 @@ public class LbbDownloadControl {
 	 */
 	public LbbDownloadControl(Context mContext,UZModuleContext moduleContext) {
 		this.mContext = mContext;
-		this.mJsmoduleContext = moduleContext;
+		mJsmoduleContext = moduleContext;
 		timter.schedule(timerTask, 0, 1000);
 		Log.d("lbbniu","---------LbbDownloadControl--------------");
 		registerReceiver();//注册广播
@@ -258,16 +258,16 @@ public class LbbDownloadControl {
 	 * 删除下载的视频
 	 */
 	public boolean removeDownlowndVideo(String videoId){
+		// 通知service取消下载
+		if (binder!=null && binder.exists(videoId)) {
+			binder.cancel(videoId);
+			startWaitStatusDownload();
+		}
 		// 删除数据库记录
 		DataSet.removeDownloadInfo(videoId);
 		File file = MediaUtil.createFile(videoId);
 		if(file!=null && file.exists()){
 			file.delete();
-		}
-		// 通知service取消下载
-		if (binder!=null && binder.exists(videoId)) {
-			binder.cancel(videoId);
-			startWaitStatusDownload();
 		}
 		//TODO: 回调给js 下载列表数据 刷新UI 下载完成和下载中
 		JSONObject json = new JSONObject();

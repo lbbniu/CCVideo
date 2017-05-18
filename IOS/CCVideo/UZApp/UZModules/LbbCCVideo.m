@@ -203,11 +203,12 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
     //隐藏 状态栏
     [self.viewController.navigationController setNavigationBarHidden:YES animated:NO];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(onDeviceOrientationChange)
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil
-     ];
+    ];
     self.viewController.view.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.8];
     // 加载播放器 必须第一个加载
     [self loadPlayer];
@@ -612,9 +613,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
     double secondsElapsed = fmod(currentTime, 60.0);
     NSString *timeElapsedString = [NSString stringWithFormat:@"%02.0f:%02.0f", minutesElapsed, secondsElapsed];
     
-    double minutesRemaining = floor(totalTime / 60.0);
-    double secondsRemaining = floor(fmod(totalTime, 60.0));
-    NSString *timeRmainingString = [NSString stringWithFormat:@"%02.0f:%02.0f", minutesRemaining, secondsRemaining];
+    //double minutesRemaining = floor(totalTime / 60.0);
+    //double secondsRemaining = floor(fmod(totalTime, 60.0));
+    //NSString *timeRmainingString = [NSString stringWithFormat:@"%02.0f:%02.0f", minutesRemaining, secondsRemaining];
     
     self.currentPlaybackTimeLabel.text = [NSString stringWithFormat:@"%@",timeElapsedString];
 }
