@@ -5,16 +5,16 @@
 //  Created by 刘兵兵 on 17/4/20.
 //  Copyright © 2017年 APICloud. All rights reserved.
 //
+#define DEBUG YES
 #if DEBUG
 #define logtrace() NSLog(@"%s():%d ", __func__, __LINE__)
 #define logdebug(format, ...) NSLog(@"%s():%d "format, __func__, __LINE__, ##__VA_ARGS__)
 #else
-//#define logdebug(format, ...)
-#define logdebug(format, ...) NSLog(@"%s():%d "format, __func__, __LINE__, ##__VA_ARGS__)
+#define logdebug(format, ...)
 #define logtrace()
 #endif
-#define loginfo(format, ...) NSLog(@"%s():%d "format, __func__, __LINE__, ##__VA_ARGS__)
 
+#define loginfo(format, ...) NSLog(@"%s():%d "format, __func__, __LINE__, ##__VA_ARGS__)
 #define logerror(format, ...) NSLog(@"%s():%d ERROR "format, __func__, __LINE__, ##__VA_ARGS__)
 
 #import <AVFoundation/AVFoundation.h>
@@ -52,11 +52,13 @@ typedef NSInteger DWPLayerScreenSizeMode;
     float viewwidth;
     float viewheight;
     
+    
     UIPanGestureRecognizer *tapPan;
     
     NSInteger count;
     NSString *viewName;
     BOOL fixed;
+    BOOL autoPlay;
 }
 @property (strong, nonatomic) UIAlertView *alert;
 @property (strong, nonatomic) UILabel *tipLabel;
@@ -185,8 +187,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     
     viewName = [paramDict stringValueForKey:@"fixedOn" defaultValue:nil];
     fixed = [paramDict boolValueForKey:@"fixed" defaultValue:YES];
-    
-    
+    autoPlay  = [paramDict boolValueForKey:@"autoPlay" defaultValue:YES];
     
     _signArray = [NSMutableArray new];
     for (int i=0; i<4; i++) {
@@ -204,11 +205,11 @@ typedef NSInteger DWPLayerScreenSizeMode;
     //隐藏 状态栏
     [self.viewController.navigationController setNavigationBarHidden:YES animated:NO];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onDeviceOrientationChange)
-                                                 name:UIDeviceOrientationDidChangeNotification
-                                               object:nil
-    ];
+    //[[NSNotificationCenter defaultCenter] addObserver:self
+    //                                         selector:@selector(onDeviceOrientationChange)
+    //                                             name:UIDeviceOrientationDidChangeNotification
+    //                                           object:nil
+    //];
     self.viewController.view.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.8];
     // 加载播放器 必须第一个加载
     [self loadPlayer];
@@ -283,8 +284,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
         self.isFullscreen = YES;
     }
     if(_cbId>0){
-        NSDictionary *ret = @{@"status":@"1"};
-        [self sendResultEventWithCallbackId:_cbId dataDict:ret errDict:nil doDelete:NO];
+         NSMutableDictionary *sendDict = [NSMutableDictionary dictionaryWithCapacity:1];
+        [sendDict setObject:[NSNumber numberWithInteger:1] forKey:@"status"];
+        [self sendResultEventWithCallbackId:_cbId dataDict:sendDict errDict:nil doDelete:NO];
     }
 }
 - (void)closeVideo {
@@ -306,16 +308,21 @@ typedef NSInteger DWPLayerScreenSizeMode;
     [self.videoBackgroundView removeFromSuperview];
     [self.overlayView removeFromSuperview];
 }
-- (void)callback:(NSInteger)cbId doDelete:(BOOL)del {
-    
+- (void)callback:(NSInteger)cbId userEvent:(NSString *)userEvent doDelete:(BOOL)del {
     NSString *currentPosition = @"0";
     NSString *duration = @"0";
     if(self.player != nil){
         currentPosition = [NSString stringWithFormat:@"%0.f",self.player.currentPlaybackTime*1000];
         duration = [NSString stringWithFormat:@"%0.f",self.player.duration*1000];
     }
-    NSDictionary *ret = @{@"status":@"1",@"currentPosition":currentPosition,@"duration":duration};
-    [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:del];
+    NSMutableDictionary *sendDict = [NSMutableDictionary dictionaryWithCapacity:1];
+    [sendDict setObject:[NSNumber numberWithInteger:1] forKey:@"status"];
+    [sendDict setObject:currentPosition forKey:@"currentPosition"];
+    [sendDict setObject:duration forKey:@"duration"];
+    if(userEvent != nil){
+        [sendDict setObject:userEvent forKey:@"USER_EVENT"];
+    }
+    [self sendResultEventWithCallbackId:cbId dataDict:sendDict errDict:nil doDelete:del];
 }
 
 //关闭播放器
@@ -345,10 +352,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
         [self.materialView setHidden:YES];
         [self.playbackButton setImage:image forState:UIControlStateNormal];
     }
-
-    
     if (cbId >= 0) {
-        [self callback:cbId doDelete:YES];
+        [self callback:cbId userEvent:nil doDelete:YES];
     }
 }
 
@@ -372,7 +377,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         [self.playbackButton setImage:image forState:UIControlStateNormal];
     }
     if (cbId >= 0) {
-        [self callback:cbId doDelete:YES];
+        [self callback:cbId userEvent:nil doDelete:YES];
     }
 }
 //取消全屏
@@ -383,7 +388,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         self.isFullscreen = NO;
     }
     if (cbId >= 0) {
-        [self callback:cbId doDelete:YES];
+        [self callback:cbId userEvent:nil doDelete:YES];
     }
 }
 //跳到指定位置播放
@@ -400,7 +405,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
 
 - (void)getCurrentPosition:(NSDictionary *)paramDict{
      NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
-    [self callback:cbId doDelete:YES];
+    [self callback:cbId userEvent:nil doDelete:YES];
 }
 
 //lbbniu
@@ -532,6 +537,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
                     _timeIndicatorView.hidden = YES;
                     _brightnessIndicatorView.hidden = YES;
                     [self.player setCurrentPlaybackTime:floor(self.sumTime)];
+                    [self callback:_cbId userEvent:nil doDelete:NO];
                     [self.player play];
                     [self startDurationTimer];
                 }
@@ -763,6 +769,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
 - (void)backButtonAction:(UIButton *)button
 {
     if (self.isFullscreen == YES) {
+        [self callback:_cbId userEvent:@"ON_QUIT_FULLSCREEN" doDelete:NO];
         [self SmallScreenFrameChanges];
         self.isFullscreen = NO;
     }else{
@@ -837,6 +844,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     self.switchScrBtn.selected = !self.switchScrBtn.selected;
     
     if (self.switchScrBtn.selected == YES) {
+        [self callback:_cbId userEvent:@"ON_ENTER_FULLSCREEN" doDelete:NO];
         [self FullScreenFrameChanges];
         //[[UIDevice currentDevice] setValue:[NSNumber numberWithInteger:UIDeviceOrientationLandscapeLeft] forKey:@"orientation"];
         [self evalJs:@"api.setScreenOrientation({orientation: 'landscape_left'});"];
@@ -844,6 +852,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         NSLog(@"点击按钮 to Full");
     }
     else{
+        [self callback:_cbId userEvent:@"ON_QUIT_FULLSCREEN" doDelete:NO];
         [self SmallScreenFrameChanges];
         self.isFullscreen = NO;
         NSLog(@"点击按钮 to Small");
@@ -930,7 +939,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     self.videoBackgroundView.backgroundColor = [UIColor blackColor];
     self.videoBackgroundView.frame = CGRectMake(0, 0, max, min);
 
-    [self addSubview:self.videoBackgroundView fixedOn:viewName fixed:fixed];
+    [self addSubview:self.videoBackgroundView fixedOn:nil fixed:YES];
     
     self.player.scalingMode = MPMovieScalingModeAspectFit;
     self.player.controlStyle = MPMovieControlStyleNone;
@@ -952,7 +961,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         [self loadBigPauseButton];
     }
     
-    [self addSubview:self.overlayView fixedOn:viewName fixed:fixed];
+    [self addSubview:self.overlayView fixedOn:nil fixed:YES];
     
     [self showBasicViews];
     self.hiddenDelaySeconds = 10;
@@ -1057,6 +1066,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         image = [UIImage imageNamed:@"res_ccVideo/player-playbutton"];
         [self.player pause];
         [self loadBigPauseButton];
+        [self callback:_cbId userEvent:@"ON_CLICK_PAUSE" doDelete:NO];
     } else {
         // 继续播放
         self.pausebuttonClick = NO;
@@ -1064,6 +1074,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         image = [UIImage imageNamed:@"res_ccVideo/player-pausebutton"];
         [self.player play];
         [self.materialView setHidden:YES];
+        [self callback:_cbId userEvent:@"ON_CLICK_RESUME" doDelete:NO];
     }
     [self.playbackButton setImage:image forState:UIControlStateNormal];
 }
@@ -1102,7 +1113,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     frame.size.height = 20;
     
     self.currentPlaybackTimeLabel.frame = frame;
-    self.currentPlaybackTimeLabel.text = @"00:00:00";
+    self.currentPlaybackTimeLabel.text = @"00:00";
     self.currentPlaybackTimeLabel.textColor = [UIColor whiteColor];
     self.currentPlaybackTimeLabel.font = [UIFont systemFontOfSize:8];
     self.currentPlaybackTimeLabel.backgroundColor = [UIColor clearColor];
@@ -1120,7 +1131,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     frame.size.height = 20;
     
     self.durationLabel.frame = frame;
-    self.durationLabel.text = @"00:00:00";
+    self.durationLabel.text = @"00:00";
     self.durationLabel.textColor = [UIColor whiteColor];
     self.durationLabel.backgroundColor = [UIColor clearColor];
     self.durationLabel.font = [UIFont systemFontOfSize:8];
@@ -1476,13 +1487,18 @@ typedef NSInteger DWPLayerScreenSizeMode;
         self.currentPlayUrl = [[self.playUrls objectForKey:@"qualities"] objectAtIndex:0];
     }
     loginfo(@"currentPlayUrl: %@", self.currentPlayUrl);
-    
+    self.player.shouldAutoplay = NO;
     [self.player prepareToPlay];
-    
-    [self.player play];
-    
-    self.player.shouldAutoplay = YES;
-    logdebug(@"play url: %@", self.player.originalContentURL);
+    AVAudioSession *audioSession=[AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
+    [audioSession setActive:YES error:nil];
+    if(autoPlay){
+        [self.player play];
+        
+        self.player.shouldAutoplay = YES;
+        loginfo(@"play url---------: %@", self.player.originalContentURL);
+    }
+    loginfo(@"play url=========: %@", self.player.originalContentURL);
 }
 
 - (void)resetPlayer
@@ -1490,6 +1506,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
     self.videoStatusLabel.hidden = NO;
     self.videoStatusLabel.text = @"正在加载";
     [self.player prepareToPlay];
+    AVAudioSession *audioSession=[AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
+    [audioSession setActive:YES error:nil];
     [self.player play];
     logdebug(@"play url: %@", self.player.originalContentURL);
 }
@@ -1501,7 +1520,12 @@ typedef NSInteger DWPLayerScreenSizeMode;
     self.player.contentURL = [[NSURL alloc] initFileURLWithPath:self.videoLocalPath];
     
     [self.player prepareToPlay];
-    [self.player play];
+    AVAudioSession *audioSession =[AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
+    [audioSession setActive:YES error:nil];
+    if(autoPlay){
+        [self.player play];
+    }
     logdebug(@"play url: %@", self.player.originalContentURL);
 }
 
@@ -1534,7 +1558,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
     self.currentPlaybackTimeLabel.text = [DWTools formatSecondsToString:0];
     self.durationSlider.minimumValue = 0.0;
     self.durationSlider.maximumValue = self.player.duration;
-    logdebug(@"seconds %f maximumValue %f %@", self.player.duration, self.durationSlider.maximumValue, self.durationLabel.text);
+    loginfo(@"seconds %f maximumValue %f %@", self.player.duration, self.durationSlider.maximumValue, self.durationLabel.text);
+    [self readNSUserDefaults];
 }
 
 - (void)moviePlayerLoadStateDidChange
@@ -1769,8 +1794,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
     [self downloadAddTimer];
     
     if (_downloadCbId >= 0){
-        NSDictionary *ret = @{@"status":@"1"};
-        [self sendResultEventWithCallbackId:_downloadCbId dataDict:ret errDict:nil doDelete:NO];
+        NSMutableDictionary *sendDict = [NSMutableDictionary dictionaryWithCapacity:1];
+        [sendDict setObject:[NSNumber numberWithInteger:1] forKey:@"status"];
+        [self sendResultEventWithCallbackId:_downloadCbId dataDict:sendDict errDict:nil doDelete:NO];
     }
 }
 //停止下载服务
@@ -1788,7 +1814,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
     NSString *videoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];
     NSString *definition = [paramDict stringValueForKey:@"definition" defaultValue:nil];
     DWDownloadItem *item = nil;
-    NSDictionary *ret = @{@"status":@"0"};
+    NSMutableDictionary *sendDict = [NSMutableDictionary dictionaryWithCapacity:1];
+    [sendDict setObject:[NSNumber numberWithInteger:1] forKey:@"status"];
     BOOL isDownloaded = NO;
     // 判断是否"下载完成"列表中
     for (item in DOWNLOADMANAGER.downloadFinishItems.items) {
@@ -1818,7 +1845,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
     
     if(!isDownloaded){
-        ret = @{@"status":@"1"};
+        [sendDict setObject:[NSNumber numberWithInteger:0] forKey:@"status"];
         item = [[DWDownloadItem alloc] init];
         item.videoId = videoId;
         item.videoDownloadStatus = DWDownloadStatusWait;
@@ -1834,7 +1861,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         });
     }
     if (cbId >= 0){
-        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+        [self sendResultEventWithCallbackId:cbId dataDict:sendDict errDict:nil doDelete:YES];
     }
 }
 
@@ -1843,7 +1870,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
 {
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
     NSString *videoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];
-    NSDictionary *ret = @{@"status":@"1"};
+    NSMutableDictionary *sendDict = [NSMutableDictionary dictionaryWithCapacity:1];
+    [sendDict setObject:[NSNumber numberWithInteger:1] forKey:@"status"];
     DWDownloadItem *item = nil;
     for (item in DOWNLOADMANAGER.downloadingItems.items) {
         if ([item.videoId isEqualToString:videoId]) {
@@ -1884,7 +1912,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
     
     if (cbId >= 0){
-        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+        [self sendResultEventWithCallbackId:cbId dataDict:sendDict errDict:nil doDelete:YES];
     }
 }
 
@@ -1930,8 +1958,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
     
     if (cbId >= 0){
-        NSDictionary *ret = @{@"status":@"1"};
-        [self sendResultEventWithCallbackId:cbId dataDict:ret errDict:nil doDelete:YES];
+        NSMutableDictionary *sendDict = [NSMutableDictionary dictionaryWithCapacity:1];
+        [sendDict setObject:[NSNumber numberWithInteger:1] forKey:@"status"];
+        [self sendResultEventWithCallbackId:cbId dataDict:sendDict errDict:nil doDelete:YES];
     }
 }
 - (void)rmFile:(NSString *)videoId{
@@ -2024,7 +2053,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         [callBackArr addObject:ttt];
     }
     NSMutableDictionary *sendDict = [NSMutableDictionary dictionaryWithCapacity:1];
-    [sendDict setObject:@"1" forKey:@"status"];
+    [sendDict setObject:[NSNumber numberWithInteger:1] forKey:@"status"];
     if(action != nil){
         [sendDict setObject:action forKey:@"action"];
     }
@@ -2208,7 +2237,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         }
         count++;
     });
-    loginfo(@"downloadTimerHandler itemcount===: %id", DOWNLOADMANAGER.count);
+    //loginfo(@"downloadTimerHandler itemcount===: %ld", DOWNLOADMANAGER.count);
     if(DOWNLOADMANAGER.count>2){
         return;
     }
