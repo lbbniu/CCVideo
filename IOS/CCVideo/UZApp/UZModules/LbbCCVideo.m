@@ -51,7 +51,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     float viewy;
     float viewwidth;
     float viewheight;
-    
+    NSString *position;
     
     UIPanGestureRecognizer *tapPan;
     
@@ -66,6 +66,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
 
 @property (strong, nonatomic)UIView *headerView;
 @property (strong, nonatomic)UIView *footerView;
+@property (strong, nonatomic)UIActivityIndicatorView *activityView;//菊花x
+
 
 @property (nonatomic, strong)UISlider *customVolumeSlider; // 用来接收系统音量条
 @property (strong, nonatomic)UIView *overlayView;
@@ -179,11 +181,11 @@ typedef NSInteger DWPLayerScreenSizeMode;
     viewwidth = [paramDict floatValueForKey:@"w" defaultValue:mainScreenWidth];
     viewheight = [paramDict floatValueForKey:@"h" defaultValue:mainScreenHeight-viewy];
     
-    title = [paramDict stringValueForKey:@"title" defaultValue:nil];//视频id
+    title = [paramDict stringValueForKey:@"title" defaultValue:nil];//视频标题
     self.videoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];//视频id
     
-    self.localoVideoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];//视频id
-    self.videoLocalPath = [paramDict stringValueForKey:@"videoLocalPath" defaultValue:nil];//视频本地地址
+    //self.localoVideoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];//视频id
+    //self.videoLocalPath = [paramDict stringValueForKey:@"videoLocalPath" defaultValue:nil];//视频本地地址
     
     viewName = [paramDict stringValueForKey:@"fixedOn" defaultValue:nil];
     fixed = [paramDict boolValueForKey:@"fixed" defaultValue:YES];
@@ -261,7 +263,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         }
     }
     BOOL fullscreen = [paramDict boolValueForKey:@"fullscreen" defaultValue:NO];
-    
+    position = [paramDict stringValueForKey:@"position" defaultValue:nil];
     if (self.videoId) {
          [self loadPlayUrls];
     } else if (self.videoLocalPath) {
@@ -393,9 +395,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
 }
 //跳到指定位置播放
 - (void)seekTo:(NSDictionary *)paramDict{
-    NSInteger  position = [paramDict integerValueForKey:@"position" defaultValue:0];
-    if(position >= 0 && position/1000 <= self.player.duration){
-        self.player.currentPlaybackTime = position/1000;
+    NSInteger  position1 = [paramDict integerValueForKey:@"position" defaultValue:0];
+    if(position >= 0 && position1/1000 <= self.player.duration){
+        self.player.currentPlaybackTime = position1/1000;
         self.currentPlaybackTimeLabel.text = [DWTools formatSecondsToString:self.player.currentPlaybackTime];
         self.durationLabel.text = [DWTools formatSecondsToString:self.player.duration];
         self.durationSlider.value = self.player.currentPlaybackTime;
@@ -757,7 +759,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     self.backButton.frame = frame;
     
     self.backButton.backgroundColor = [UIColor clearColor];
-    [self.backButton setTitle:@"视频标题" forState:UIControlStateNormal];
+    [self.backButton setTitle:title forState:UIControlStateNormal];
     [self.backButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.backButton setImage:[UIImage imageNamed:@"res_ccVideo/player-back-button"] forState:UIControlStateNormal];
     self.backButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
@@ -1559,7 +1561,6 @@ typedef NSInteger DWPLayerScreenSizeMode;
     self.durationSlider.minimumValue = 0.0;
     self.durationSlider.maximumValue = self.player.duration;
     loginfo(@"seconds %f maximumValue %f %@", self.player.duration, self.durationSlider.maximumValue, self.durationLabel.text);
-    [self readNSUserDefaults];
 }
 
 - (void)moviePlayerLoadStateDidChange
@@ -1719,15 +1720,22 @@ typedef NSInteger DWPLayerScreenSizeMode;
 }
 -(void)readNSUserDefaults
 {
-    NSUserDefaults *userDefaultes = [NSUserDefaults standardUserDefaults];
-    if (self.videoId) {
-        NSDictionary *playPosition = [userDefaultes dictionaryForKey:_videoId];
-        self.player.currentPlaybackTime = [[playPosition valueForKey:@"playbackTime"] floatValue];
-        
-    }else if (self.videoLocalPath){
-        NSDictionary *playPosition = [userDefaultes dictionaryForKey:_videoLocalPath];
-        self.player.currentPlaybackTime = [[playPosition valueForKey:@"playbackTime"] floatValue];
+    if(position != nil){
+        self.durationSlider.value = [position intValue]/1000;
+        self.player.currentPlaybackTime = [position floatValue]/1000;
+    }else{
+        NSUserDefaults *userDefaultes = [NSUserDefaults standardUserDefaults];
+        if (self.videoId) {
+            NSDictionary *playPosition = [userDefaultes dictionaryForKey:_videoId];
+            self.player.currentPlaybackTime = [[playPosition valueForKey:@"playbackTime"] floatValue];
+            
+        }else if (self.videoLocalPath){
+            NSDictionary *playPosition = [userDefaultes dictionaryForKey:_videoLocalPath];
+            self.player.currentPlaybackTime = [[playPosition valueForKey:@"playbackTime"] floatValue];
+
+        }
     }
+    loginfo("-currentPlaybackTime---------------------------- %f",self.player.currentPlaybackTime);
 }
 
 # pragma mark - timer

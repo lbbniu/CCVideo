@@ -17,7 +17,7 @@
 @interface LbbCCVideo : UZModule
 
 @property (copy, nonatomic)NSString *videoId;
-@property (copy, nonatomic)NSString *localoVideoId;
+//@property (copy, nonatomic)NSString *localoVideoId;
 @property (copy, nonatomic)NSString *videoLocalPath;
 
 // 快进、快退指示器

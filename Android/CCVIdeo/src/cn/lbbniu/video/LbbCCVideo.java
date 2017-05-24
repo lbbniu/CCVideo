@@ -107,7 +107,7 @@ public class LbbCCVideo extends UZModule {
 		}
 		// 到指定位置播放
 		int position = moduleContext.optInt("position", 0);
-		if (position >= 0) {
+		if (position > 0) {
 			mJcVideoPlayerStandard.seekToInAdvance = position;
 		}
 		// 是否自动播放
