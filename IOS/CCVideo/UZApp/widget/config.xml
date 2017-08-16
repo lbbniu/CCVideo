@@ -1,0 +1,15 @@
+<widget id="A0000000000001"  version="0.0.1">
+    <name>ModuleDemo</name>
+    <description>A sample of APICloud module extension.</description>
+    <author email="developer@apicloud.com" href="http://www.apicloud.com">
+        developer
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <preference name="bounces" value="true" />
+    <preference name="customRefreshHeader" value="cusHeader" />
+    <feature name="ccVideo">
+        <param name="userId" value="F15CC8107DD5874E"/>
+        <param name="apiKey" value="mJmkXGu4TRgvuWr9BTJrqjfmAy8uMqOB"/>
+    </feature>
+</widget>
