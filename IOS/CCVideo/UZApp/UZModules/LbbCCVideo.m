@@ -59,6 +59,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     NSString *viewName;
     BOOL fixed;
     BOOL autoPlay;
+    BOOL cc;
 }
 @property (strong, nonatomic) UIAlertView *alert;
 @property (strong, nonatomic) UILabel *tipLabel;
@@ -140,13 +141,14 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
     return self;
 }
-- (void)dispose {
+- (void) dispose {
     //do clean
     [self closeVideo];//关闭视频
     
     [self downloadRemoveTimer];
     
     [self saveDownloadItems];
+    //self.viewController.didReceiveMemoryWarning();
 }
 
 //打开视频界面
@@ -165,6 +167,26 @@ typedef NSInteger DWPLayerScreenSizeMode;
         userId = [feature stringValueForKey:@"userId" defaultValue:nil];
         apiKey = [feature stringValueForKey:@"apiKey" defaultValue:nil];
     }
+    self.videoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];//视频id
+    //是否背地
+    BOOL isLocalPlay = [paramDict boolValueForKey:@"isLocalPlay" defaultValue:NO];
+    
+    if (isLocalPlay) {
+        NSFileManager *fileMgr = [NSFileManager defaultManager];
+        NSArray *paths =  NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        NSString *cacheDirectory = [paths objectAtIndex:0];
+        NSString *videoPath;
+        videoPath = [NSString stringWithFormat:@"%@/%@.mp4", cacheDirectory, self.videoId];
+        BOOL bRet = [fileMgr fileExistsAtPath:videoPath];
+        if (bRet) {
+            self.videoId = nil;
+            self.videoLocalPath = videoPath;
+        }else{
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkStateChange) name:kReachabilityChangedNotification object:nil];
+        }
+    }else{
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkStateChange) name:kReachabilityChangedNotification object:nil];
+    }
     
     self.player = [[DWMoviePlayerController alloc] initWithUserId:userId key:apiKey];
     self.player.currentPlaybackRate = 1;
@@ -182,7 +204,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     viewheight = [paramDict floatValueForKey:@"h" defaultValue:mainScreenHeight-viewy];
     
     title = [paramDict stringValueForKey:@"title" defaultValue:nil];//视频标题
-    self.videoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];//视频id
+    
     
     //self.localoVideoId = [paramDict stringValueForKey:@"videoId" defaultValue:nil];//视频id
     //self.videoLocalPath = [paramDict stringValueForKey:@"videoLocalPath" defaultValue:nil];//视频本地地址
@@ -196,14 +218,12 @@ typedef NSInteger DWPLayerScreenSizeMode;
         [_signArray addObject:@"0"];
     }
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(networkStateChange) name:kReachabilityChangedNotification object:nil];
-    
     self.internetReachability = [Reachability reachabilityForInternetConnection];
     [self.internetReachability startNotifier];
-    if ([_internetReachability currentReachabilityStatus] == ReachableViaWWAN) {
-        self.alert = [[UIAlertView alloc]initWithTitle:@"当前为移动网络，是否继续播放？" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
-        [self.alert show];
-    }
+    //if ([_internetReachability currentReachabilityStatus] == ReachableViaWWAN) {
+        //self.alert = [[UIAlertView alloc]initWithTitle:@"当前为移动网络，是否继续播放？" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
+        //[self.alert show];
+    //}
     //隐藏 状态栏
     [self.viewController.navigationController setNavigationBarHidden:YES animated:NO];
     
@@ -247,21 +267,13 @@ typedef NSInteger DWPLayerScreenSizeMode;
     [self.overlayView addGestureRecognizer:self.doubleTap];
     [self.signelTap requireGestureRecognizerToFail:self.doubleTap];
     
-    //是否背地
-    BOOL isLocalPlay = [paramDict boolValueForKey:@"isLocalPlay" defaultValue:NO];
-    
-    if (isLocalPlay) {
-        NSFileManager *fileMgr = [NSFileManager defaultManager];
-        NSArray *paths =  NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-        NSString *cacheDirectory = [paths objectAtIndex:0];
-        NSString *videoPath;
-        videoPath = [NSString stringWithFormat:@"%@/%@.mp4", cacheDirectory, self.videoId];
-        BOOL bRet = [fileMgr fileExistsAtPath:videoPath];
-        if (bRet) {
-            self.videoId = nil;
-            self.videoLocalPath = videoPath;
-        }
+    //是否cc视频播放
+    cc = [paramDict boolValueForKey:@"cc" defaultValue:YES];
+    if(!cc){
+        //self.currentPlayUrl = self.videoId;
     }
+    
+    
     BOOL fullscreen = [paramDict boolValueForKey:@"fullscreen" defaultValue:NO];
     position = [paramDict stringValueForKey:@"position" defaultValue:nil];
     if (self.videoId) {
@@ -276,6 +288,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
                                               cancelButtonTitle:@"OK"
                                               otherButtonTitles:nil, nil];
         [alert show];
+    }
+    if(position !=nil ){
+        self.player.seekStartTime = [position intValue]/1000;
     }
     // 10 秒后隐藏所有窗口·
     self.hiddenDelaySeconds = 10;
@@ -295,9 +310,10 @@ typedef NSInteger DWPLayerScreenSizeMode;
     if(!self.player){
         return;
     }
-    [self.player cancelRequestPlayInfo];
+    if(self.videoId){
+        [self.player cancelRequestPlayInfo];
+    }
     [self saveNsUserDefaults];
-    self.player.currentPlaybackTime = self.player.duration;
     [self.player stop];
     self.secondsCountDown = -1;
     self.player.contentURL = nil;
@@ -306,7 +322,6 @@ typedef NSInteger DWPLayerScreenSizeMode;
     [self removeTimer];
     // 显示 状态栏  quanping
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    
     [self.videoBackgroundView removeFromSuperview];
     [self.overlayView removeFromSuperview];
 }
@@ -339,7 +354,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
     self.hiddenDelaySeconds = 10;
     
-    if (!self.playUrls || self.playUrls.count == 0) {
+    if (self.videoId !=nil && (!self.playUrls || self.playUrls.count == 0)) {
         [self loadPlayUrls];
         return;
     }
@@ -365,7 +380,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     NSInteger  cbId = [paramDict integerValueForKey:@"cbId" defaultValue:-1];
     self.hiddenDelaySeconds = 10;
     
-    if (!self.playUrls || self.playUrls.count == 0) {
+    if (self.videoId !=nil && (!self.playUrls || self.playUrls.count == 0)) {
         [self loadPlayUrls];
         return;
     }
@@ -396,7 +411,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
 //跳到指定位置播放
 - (void)seekTo:(NSDictionary *)paramDict{
     NSInteger  position1 = [paramDict integerValueForKey:@"position" defaultValue:0];
-    if(position >= 0 && position1/1000 <= self.player.duration){
+    if(position1 >= 0 && position1/1000 <= self.player.duration){
         self.player.currentPlaybackTime = position1/1000;
         self.currentPlaybackTimeLabel.text = [DWTools formatSecondsToString:self.player.currentPlaybackTime];
         self.durationLabel.text = [DWTools formatSecondsToString:self.player.duration];
@@ -677,11 +692,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
             
         case ReachableViaWWAN:
             NSLog(@"运营商网络");
-        {
             [self.player pause];
             self.alert = [[UIAlertView alloc]initWithTitle:@"当前为移动网络，是否继续播放？" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
             [self.alert show];
-        }
             break;
             
         default:
@@ -697,7 +710,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
         self.player = nil;
         [self removeAllObserver];
         [self removeTimer];
-        [self.viewController.navigationController popViewControllerAnimated:YES];
+        //[self.viewController.navigationController popViewControllerAnimated:YES];
     }
     if (buttonIndex == 1) {
         [self.player play];
@@ -1083,23 +1096,29 @@ typedef NSInteger DWPLayerScreenSizeMode;
 
 - (void)switchQuality:(NSInteger)index
 {
-    self.switchTime = self.player.currentPlaybackTime;
-    NSInteger currentQualityIndex =  [[self.playUrls objectForKey:@"qualities"] indexOfObject:self.currentPlayUrl];
-    
-    NSDictionary *currentUrl = [[self.playUrls objectForKey:@"qualities"] objectAtIndex:0];
-    self.player.sourceURL = [NSURL URLWithString:[currentUrl objectForKey:@"playurl"]];
-    
-    logdebug(@"index: %ld %ld", (long)index, (long)currentQualityIndex);
-    if (index == currentQualityIndex) {
-        //不需要切换
-        logdebug(@"current quality: %ld %@", (long)currentQualityIndex, self.currentPlayUrl);
-        return;
+    if(cc){
+        self.switchTime = self.player.currentPlaybackTime;
+        NSInteger currentQualityIndex =  [[self.playUrls objectForKey:@"qualities"] indexOfObject:self.currentPlayUrl];
+        
+        NSDictionary *currentUrl = [[self.playUrls objectForKey:@"qualities"] objectAtIndex:0];
+        self.player.sourceURL = [NSURL URLWithString:[currentUrl objectForKey:@"playurl"]];
+        
+        logdebug(@"index: %ld %ld", (long)index, (long)currentQualityIndex);
+        if (index == currentQualityIndex) {
+            //不需要切换
+            logdebug(@"current quality: %ld %@", (long)currentQualityIndex, self.currentPlayUrl);
+            return;
+        }
+        loginfo(@"switch %@ -> %@", self.currentPlayUrl, [[self.playUrls objectForKey:@"qualities"] objectAtIndex:index]);
+        
+        self.currentPlayUrl = [[self.playUrls objectForKey:@"qualities"] objectAtIndex:index];
+        self.player.contentURL = [NSURL URLWithString:[self.currentPlayUrl objectForKey:@"playurl"]];
+        if(cc && self.videoLocalPath == nil)
+            [self.player swith_quality];
+    }else{
+        self.player.contentURL = [NSURL URLWithString:self.videoId];;//[[NSURL alloc] initFileURLWithPath:self.videoLocalPath];
     }
-    loginfo(@"switch %@ -> %@", self.currentPlayUrl, [[self.playUrls objectForKey:@"qualities"] objectAtIndex:index]);
-
-    self.currentPlayUrl = [[self.playUrls objectForKey:@"qualities"] objectAtIndex:index];
-    self.player.contentURL = [NSURL URLWithString:[self.currentPlayUrl objectForKey:@"playurl"]];
-    [self.player swith_quality];
+    
     
     [self resetPlayer];
 }
@@ -1125,7 +1144,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
 
 # pragma mark 视频总时间
 - (void)loadDurationLabel
-{   //视频总时间label
+{
+    //视频总时间label
     CGRect frame = CGRectZero;
     frame.origin.x = self.durationSlider.frame.origin.x + self.durationSlider.frame.size.width + 5;
     frame.origin.y = self.playbackButton.frame.origin.y + 5;
@@ -1193,9 +1213,12 @@ typedef NSInteger DWPLayerScreenSizeMode;
     else{
         self.player.playaction = @"buffereddrag";
     }
-    [self.player drag_action];
     
-    [self.player play_action];
+    if(cc && self.videoLocalPath == nil){
+        [self.player drag_action];
+        [self.player play_action];
+    }
+    
 }
 # pragma mark - 其它控件
 
@@ -1436,55 +1459,61 @@ typedef NSInteger DWPLayerScreenSizeMode;
 # pragma mark - 播放视频
 - (void)loadPlayUrls
 {
-    self.player.videoId = self.videoId;
-    self.player.timeoutSeconds = 10;
-    
-    __weak LbbCCVideo *blockSelf = self;
-    self.player.failBlock = ^(NSError *error) {
-        loginfo(@"error: %@", [error localizedDescription]);
-        blockSelf.videoStatusLabel.hidden = NO;
-        blockSelf.videoStatusLabel.text = @"加载失败";
-    };
-    
-    self.player.getPlayUrlsBlock = ^(NSDictionary *playUrls) {
-        // [必须]判断 status 的状态，不为"0"说明该视频不可播放，可能正处于转码、审核等状态。
-        NSNumber *status = [playUrls objectForKey:@"status"];
+    if(cc){
+        self.player.videoId = self.videoId;
+        self.player.timeoutSeconds = 10;
         
-        if (status == nil || [status integerValue] != 0) {
-            NSString *message = [NSString stringWithFormat:@"%@ %@:%@",
-                                 blockSelf.videoId,
-                                 [playUrls objectForKey:@"status"],
-                                 [playUrls objectForKey:@"statusinfo"]];
+        __weak LbbCCVideo *blockSelf = self;
+        self.player.failBlock = ^(NSError *error) {
+            loginfo(@"error: %@", [error localizedDescription]);
+            blockSelf.videoStatusLabel.hidden = NO;
+            blockSelf.videoStatusLabel.text = @"加载失败";
+        };
+        
+        self.player.getPlayUrlsBlock = ^(NSDictionary *playUrls) {
+            // [必须]判断 status 的状态，不为"0"说明该视频不可播放，可能正处于转码、审核等状态。
+            NSNumber *status = [playUrls objectForKey:@"status"];
             
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示"
-                                                            message:message
-                                                           delegate:nil
-                                                  cancelButtonTitle:@"OK"
-                                                  otherButtonTitles:nil, nil];
-            [alert show];
-            return;
-        }
-        blockSelf.playUrls = playUrls;
-        
-        [blockSelf resetViewContent];
-    };
-    [self.player startRequestPlayInfo];
+            if (status == nil || [status integerValue] != 0) {
+                NSString *message = [NSString stringWithFormat:@"%@ %@:%@",
+                                     blockSelf.videoId,
+                                     [playUrls objectForKey:@"status"],
+                                     [playUrls objectForKey:@"statusinfo"]];
+                
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示"
+                                                                message:message
+                                                               delegate:nil
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil, nil];
+                [alert show];
+                return;
+            }
+            blockSelf.playUrls = playUrls;
+            
+            [blockSelf resetViewContent];
+        };
+        [self.player startRequestPlayInfo];
+    }else{
+        //[self switchQuality:0];
+        [self resetViewContent];
+    }
 }
 
 # pragma mark - 根据播放url更新涉及的视图
 
 - (void)resetViewContent
 {
-    // 获取默认清晰度播放url
-    NSNumber *defaultquality = [self.playUrls objectForKey:@"defaultquality"];
-    
-    for (NSDictionary *playurl in [self.playUrls objectForKey:@"qualities"]) {
-        if (defaultquality == [playurl objectForKey:@"quality"]) {
-            self.currentPlayUrl = playurl;
-            break;
+    if(cc){
+        // 获取默认清晰度播放url
+        NSNumber *defaultquality = [self.playUrls objectForKey:@"defaultquality"];
+        
+        for (NSDictionary *playurl in [self.playUrls objectForKey:@"qualities"]) {
+            if (defaultquality == [playurl objectForKey:@"quality"]) {
+                self.currentPlayUrl = playurl;
+                break;
+            }
         }
     }
-    
     if (!self.currentPlayUrl) {
         self.currentPlayUrl = [[self.playUrls objectForKey:@"qualities"] objectAtIndex:0];
     }
@@ -1572,7 +1601,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
             self.videoStatusLabel.hidden = YES;
             if (_videoId) {
                 if (self.player.playNum < 2) {
-                    [self.player first_load];
+                    if(cc && self.videoLocalPath == nil)
+                        [self.player first_load];
                     self.player.playNum ++;
                     [self readNSUserDefaults];
                 }
@@ -1585,7 +1615,8 @@ typedef NSInteger DWPLayerScreenSizeMode;
             self.videoStatusLabel.hidden = YES;
             if (_videoId) {
                 if (self.player.playNum < 2) {
-                    [self.player first_load];
+                    if(cc && self.videoLocalPath == nil)
+                        [self.player first_load];
                     self.player.playNum ++;
                     [self readNSUserDefaults];
                 }
@@ -1651,7 +1682,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
             self.player.playaction = @"buffereddrag";
             if (_videoId) {
                 if (self.player.playNum >1 && self.player.isReplay == NO) {
-                    [self.player replay];
+                    if(cc && self.videoLocalPath == nil){
+                        [self.player replay];
+                    }
                 }
             }
             break;
@@ -1665,10 +1698,15 @@ typedef NSInteger DWPLayerScreenSizeMode;
             self.player.playaction = @"unbuffereddrag";
             if (_videoId) {
                 if (self.player.playableDuration < 5 && self.player.playNum >1 && self.player.sourceURL==nil) {
-                    [self.player playlog];
+                    if(cc && self.videoLocalPath == nil){
+                        [self.player playlog];
+                    }
+                    
                     
                     if (self.player.action == 1 || self.player.action == 3) {
-                        [self.player playlog_php];
+                        if(cc && self.videoLocalPath == nil){
+                            [self.player playlog_php];
+                        }
                     }
                 }
             }
@@ -1699,6 +1737,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
 
 -(void)saveNsUserDefaults
 {
+    
     //记录退出时播放信息
     NSTimeInterval time = self.player.currentPlaybackTime;
     long long dTime = [[NSNumber numberWithDouble:time] longLongValue];
@@ -1722,7 +1761,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
 {
     if(position != nil){
         self.durationSlider.value = [position intValue]/1000;
-        self.player.currentPlaybackTime = [position floatValue]/1000;
+        self.player.currentPlaybackTime = self.durationSlider.value;//[position intValue]/1000;
     }else{
         NSUserDefaults *userDefaultes = [NSUserDefaults standardUserDefaults];
         if (self.videoId) {
@@ -1732,7 +1771,6 @@ typedef NSInteger DWPLayerScreenSizeMode;
         }else if (self.videoLocalPath){
             NSDictionary *playPosition = [userDefaultes dictionaryForKey:_videoLocalPath];
             self.player.currentPlaybackTime = [[playPosition valueForKey:@"playbackTime"] floatValue];
-
         }
     }
     loginfo("-currentPlaybackTime---------------------------- %f",self.player.currentPlaybackTime);
@@ -1746,7 +1784,9 @@ typedef NSInteger DWPLayerScreenSizeMode;
 
 - (void)removeTimer
 {
-    [self.timer invalidate];
+    if(self.timer){
+        [self.timer invalidate];
+    }
 }
 
 - (void)timerHandler
@@ -1823,7 +1863,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     NSString *definition = [paramDict stringValueForKey:@"definition" defaultValue:nil];
     DWDownloadItem *item = nil;
     NSMutableDictionary *sendDict = [NSMutableDictionary dictionaryWithCapacity:1];
-    [sendDict setObject:[NSNumber numberWithInteger:1] forKey:@"status"];
+    [sendDict setObject:[NSNumber numberWithInteger:0] forKey:@"status"];
     BOOL isDownloaded = NO;
     // 判断是否"下载完成"列表中
     for (item in DOWNLOADMANAGER.downloadFinishItems.items) {
@@ -1853,7 +1893,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
     
     if(!isDownloaded){
-        [sendDict setObject:[NSNumber numberWithInteger:0] forKey:@"status"];
+        [sendDict setObject:[NSNumber numberWithInteger:1] forKey:@"status"];
         item = [[DWDownloadItem alloc] init];
         item.videoId = videoId;
         item.videoDownloadStatus = DWDownloadStatusWait;
@@ -2067,7 +2107,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     }
     [sendDict setObject:callBackArr forKey:@"data"];
     if (DOWNLOADMANAGER._downloadCbId >= 0){
-        loginfo(@"sendDict item: %@", sendDict);
+        //loginfo(@"sendDict item: %@", sendDict);
         [self sendResultEventWithCallbackId:cbId dataDict:sendDict errDict:nil doDelete:NO];
     }
 }
@@ -2160,7 +2200,7 @@ typedef NSInteger DWPLayerScreenSizeMode;
     DWDownloader *downloader = item.downloader;
     
     downloader.progressBlock = ^(float progress, NSInteger totalBytesWritten, NSInteger totalBytesExpectedToWrite) {
-         NSLog(@"totalBytesWritten==%ld,totalBytesExpectedToWrite==%ld",(long)totalBytesWritten,(long)totalBytesExpectedToWrite);
+        // NSLog(@"totalBytesWritten==%ld,totalBytesExpectedToWrite==%ld",(long)totalBytesWritten,(long)totalBytesExpectedToWrite);
         if(item.downloader.remoteFileSize < 2000){
             [self rmFile:item.videoId];
             

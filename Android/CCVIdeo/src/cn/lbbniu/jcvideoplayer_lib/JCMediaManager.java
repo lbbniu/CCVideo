@@ -5,6 +5,7 @@ import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -14,6 +15,7 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.Map;
 
 import com.bokecc.sdk.mobile.play.DWMediaPlayer;
@@ -43,6 +45,7 @@ MediaPlayer.OnVideoSizeChangedListener {
     public static String API_KEY;
     public static String CURRENT_PLAYING_URL;
     public static Context MCONTEXT;
+    public static boolean cc;
     // 默认设置为普清
     public static int defaultDefinition = DWMediaPlayer.NORMAL_DEFINITION;
     public static boolean CURRENT_PLING_LOOP;
@@ -95,16 +98,15 @@ MediaPlayer.OnVideoSizeChangedListener {
                         mediaPlayer = new DWMediaPlayer();
                         mediaPlayer.reset();
                         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                        Log.d(TAG, "videoId-------"+CURRENT_PLAYING_URL);
                         Class<DWMediaPlayer> clazz = DWMediaPlayer.class;
-                        if(isLocalPlay){
-                        		Method method = clazz.getDeclaredMethod("setDataSource", String.class);
-                        		method.invoke(mediaPlayer, CURRENT_PLAYING_URL);
+                        if(isLocalPlay || !cc){
+	                    		mediaPlayer.setDataSource(CURRENT_PLAYING_URL);
                         } else {
                         	 	Method method = clazz.getDeclaredMethod("setVideoPlayInfo", String.class, String.class , String.class, Context.class);
                         	 	method.invoke(mediaPlayer, CURRENT_PLAYING_URL, USERID, API_KEY, MCONTEXT);
                         	 	mediaPlayer.setDefaultDefinition(defaultDefinition);
                         }
-                        Log.d(TAG, "videoId-------"+CURRENT_PLAYING_URL);
                         mediaPlayer.setDefaultDefinition(DWMediaPlayer.NORMAL_DEFINITION);
                         mediaPlayer.setLooping(CURRENT_PLING_LOOP);
                         mediaPlayer.setOnPreparedListener(JCMediaManager.this);	

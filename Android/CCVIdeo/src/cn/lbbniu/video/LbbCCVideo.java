@@ -81,6 +81,7 @@ public class LbbCCVideo extends UZModule {
 			}
 		}
 		JCMediaManager.isLocalPlay = moduleContext.optBoolean("isLocalPlay", false);
+		JCMediaManager.cc = moduleContext.optBoolean("cc", true);
 		JCMediaManager.USERID = moduleContext.optString("userId", userId);
 		JCMediaManager.API_KEY = moduleContext.optString("apiKey", apiKey);
 		String videoId = mJsCallback.optString("videoId");
@@ -140,12 +141,13 @@ public class LbbCCVideo extends UZModule {
 			JSONObject ret = getPostion();
 			try {
 				ret.put("status", 1);
-				mJcVideoPlayerStandard.release();
+				mJcVideoPlayerStandard.release();	
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}finally{
 				removeViewFromCurWindow(mJcVideoPlayerStandard);
 				mJcVideoPlayerStandard = null;
 				mJsCallback = null;
-			} catch (JSONException e) {
-				e.printStackTrace();
 			}
 			moduleContext.success(ret, true);	
 		}

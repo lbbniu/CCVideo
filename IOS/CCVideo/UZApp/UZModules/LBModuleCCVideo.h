@@ -7,7 +7,7 @@
 //
 
 #import "UZModule.h"
-#import "DWDownloader.h"
+//#import "DWDownloader.h"
 #import "DWDownloadItem.h"
 #import "ZXVideoPlayerTimeIndicatorView.h"
 #import "ZXVideoPlayerVolumeView.h"

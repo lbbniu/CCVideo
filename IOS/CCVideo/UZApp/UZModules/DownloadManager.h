@@ -26,7 +26,4 @@
  */
 + (instancetype)sharedInstance;
 - (void)loadDownloadItems;
-
-
-
 @end

@@ -25,6 +25,7 @@ import android.widget.Toast;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.lbbniu.jcvideoplayer_lib.JCMediaManager;
 import cn.lbbniu.jcvideoplayer_lib.JCUserActionStandard;
 import cn.lbbniu.jcvideoplayer_lib.JCUtils;
 import cn.lbbniu.jcvideoplayer_lib.JCVideoPlayer;
@@ -197,7 +198,7 @@ public class LbbVideoPlayerStandard extends JCVideoPlayer {
             }
             if (currentState == CURRENT_STATE_NORMAL) {
                 if (!url.startsWith("file") && !url.startsWith("/") &&
-                        !JCUtils.isWifiConnected(getContext()) && !WIFI_TIP_DIALOG_SHOWED) {
+                        !JCUtils.isWifiConnected(getContext()) && !WIFI_TIP_DIALOG_SHOWED && !JCMediaManager.isLocalPlay) {
                     showWifiDialog();
                     return;
                 }

@@ -8,8 +8,8 @@
     <access origin="*" />
     <preference name="bounces" value="true" />
     <preference name="customRefreshHeader" value="cusHeader" />
-    <feature name="lbbVideo">
-        <param name="userId" value="CDE9DD8D9F25B1EF"/>
-        <param name="apiKey" value="x2vqfLcC3gTv69PaA0T5ZN6VdHw0sGI4"/>
+    <feature name="ccVideo">
+        <param name="userId" value="F15CC8107DD5874E"/>  
+    		<param name="apiKey" value="mJmkXGu4TRgvuWr9BTJrqjfmAy8uMqOB"/> 
     </feature>
 </widget>
